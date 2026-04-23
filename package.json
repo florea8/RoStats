@@ -1,0 +1,8 @@
+{
+  "name": "ro-pulse",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "zod": "^4.3.6"
+  }
+}

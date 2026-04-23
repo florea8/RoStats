@@ -1,0 +1,7 @@
+{
+  "buildCommand": "cd rostats && npm install && npm run build",
+  "outputDirectory": "rostats/dist",
+  "rewrites": [
+    { "source": "/((?!api/).*)", "destination": "/" }
+  ]
+}
