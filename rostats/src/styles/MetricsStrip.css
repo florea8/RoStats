@@ -1,0 +1,74 @@
+/* ── MetricsStrip ────────────────────────────── */
+.metrics {
+  display: flex;
+  align-items: stretch;
+  height: 64px;
+  background: var(--bg-card2);
+  border-bottom: 1px solid var(--border-md);
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Subtle gradient line at top */
+.metrics::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(79,172,254,0.25) 30%, rgba(0,240,200,0.2) 70%, transparent 100%);
+}
+
+.metric {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 18px;
+  border-right: 1px solid var(--border);
+  cursor: default;
+  transition: background var(--fast) var(--ease);
+  position: relative;
+  overflow: hidden;
+  user-select: none;
+}
+
+.metric:last-child { border-right: none; }
+
+/* Animated top accent line */
+.metric::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--blue), var(--teal));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s var(--ease);
+}
+
+.metric:hover { background: var(--bg-elevated); }
+.metric:hover::after { transform: scaleX(1); }
+
+.mLabel {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--txt4);
+  margin-bottom: 3px;
+}
+
+.mVal {
+  font-family: var(--mono);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.mSub {
+  font-size: 8.5px;
+  color: var(--txt3);
+  text-transform: capitalize;
+  letter-spacing: 0.15px;
+}

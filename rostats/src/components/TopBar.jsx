@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { formatTime, formatUpdated } from '../utils/time'
+import '../styles/TopBar.css'
 
 export default function TopBar() {
   const [clock, setClock] = useState(formatTime())
@@ -18,17 +19,26 @@ export default function TopBar() {
 
   return (
     <header className="topbar boot-fade">
-      <div className="tb-logo">
-        <span className="dot" />
-        RoStats
+      <div className="tbBrand">
+        <div className="tbLogoMark">
+          <span className="dot" />
+        </div>
+        <div className="tbLogoText">
+          <span className="tbLogo">RoStats</span>
+          <span className="tbTagline">Sistem Național de Monitorizare</span>
+        </div>
       </div>
-      <div className="tb-div" />
-      <div className="tb-sub">National Monitoring System</div>
-      <div className="tb-spacer" />
-      <div className="tb-status">
+      <div className="tbDiv" />
+      <div className="tbOnlineIndicators">
+        <div className="tbOnlineItem"><span className="tbODot" />SEISMIC</div>
+        <div className="tbOnlineItem"><span className="tbODot" />AQI</div>
+        <div className="tbOnlineItem"><span className="tbODot" />METEO</div>
+      </div>
+      <div className="tbSpacer" />
+      <div className="tbStatus">
         <span className="upd">{updated}</span>
-        <div className="live-badge">
-          <div className="live-ring" />
+        <div className="liveBadge">
+          <div className="liveRing" />
           LIVE
         </div>
         <span className="clock">{clock}</span>

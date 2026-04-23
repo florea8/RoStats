@@ -1,0 +1,49 @@
+/* ── Footer ──────────────────────────────────── */
+.footer {
+  height: 34px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-md);
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+  gap: 18px;
+  flex-shrink: 0;
+  position: relative;
+}
+
+/* Gradient top line */
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(79,172,254,0.2) 30%, rgba(0,240,200,0.15) 70%, transparent 100%);
+}
+
+.fSrc {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  color: var(--txt4);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color var(--fast) var(--ease);
+}
+
+.fSrc:hover {
+  color: var(--blue);
+}
+
+.fSpacer {
+  flex: 1;
+}
+
+.fTag {
+  font-size: 9.5px;
+  color: var(--txt4);
+  letter-spacing: 0.2px;
+}
+
+.fTag span {
+  color: var(--txt3);
+}

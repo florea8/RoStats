@@ -5,21 +5,21 @@ export function magColor(m) {
 }
 
 export function magHex(m) {
-  if (m >= 4) return '#ff3b3b';
-  if (m >= 3) return '#f5a400';
-  return '#00e0aa';
+  if (m >= 4) return '#ef4444';
+  if (m >= 3) return '#f59e0b';
+  return '#10b981';
 }
 
 export function aqiColor(v) {
-  if (v <= 50)  return 'var(--a)';
-  if (v <= 100) return 'var(--warn)';
+  if (v <= 50)  return 'var(--green)';
+  if (v <= 100) return 'var(--amber)';
   return 'var(--red)';
 }
 
 export function aqiHex(v) {
-  if (v <= 50)  return '#00e0aa';
-  if (v <= 100) return '#f5a400';
-  return '#ff3b3b';
+  if (v <= 50)  return '#10b981';
+  if (v <= 100) return '#f59e0b';
+  return '#ef4444';
 }
 
 export function aqiTag(v) {

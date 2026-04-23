@@ -1,4 +1,5 @@
 import { aqiTag } from '../utils/colors'
+import '../styles/MetricsStrip.css'
 
 export default function MetricsStrip({ earthquakes, weather, aqi }) {
   const latestEq = earthquakes.data?.[0]
@@ -13,21 +14,21 @@ export default function MetricsStrip({ earthquakes, weather, aqi }) {
   return (
     <div className="metrics boot-fade d1">
       <div className="metric">
-        <div className="m-label">air quality · buc</div>
-        <div className={`m-val ${bucAqi <= 50 ? 'c-a' : bucAqi <= 100 ? 'c-warn' : 'c-red'}`}>
+        <div className="mLabel">air quality · buc</div>
+        <div className={`mVal ${bucAqi <= 50 ? 'c-a' : bucAqi <= 100 ? 'c-warn' : 'c-red'}`}>
           {bucAqi ?? '—'}
         </div>
-        <div className="m-sub">
+        <div className="mSub">
           AQI · {bucAqi ? aqiTag(bucAqi).toLowerCase() : 'loading'}
         </div>
       </div>
 
       <div className="metric">
-        <div className="m-label">latest earthquake</div>
-        <div className={`m-val ${eqColor}`}>
+        <div className="mLabel">latest earthquake</div>
+        <div className={`mVal ${eqColor}`}>
           {latestEq ? `M ${eqMag}` : '—'}
         </div>
-        <div className="m-sub">
+        <div className="mSub">
           {latestEq
             ? (latestEq.properties.place?.split(' of ').pop() ?? 'Romania').substring(0, 22)
             : 'loading'}
@@ -35,29 +36,29 @@ export default function MetricsStrip({ earthquakes, weather, aqi }) {
       </div>
 
       <div className="metric">
-        <div className="m-label">temperature · buc</div>
-        <div className="m-val c-a2">
+        <div className="mLabel">temperature · buc</div>
+        <div className="mVal c-a2">
           {bucWeather ? `${bucWeather.temp}°` : '—'}
         </div>
-        <div className="m-sub">
+        <div className="mSub">
           {bucWeather?.description ?? 'loading'}
         </div>
       </div>
 
       <div className="metric">
-        <div className="m-label">population ro</div>
-        <div className="m-val c-txt">
+        <div className="mLabel">population ro</div>
+        <div className="mVal c-txt">
           19.0<span style={{ fontSize: 16, fontWeight: 400 }}> M</span>
         </div>
-        <div className="m-sub">census 2021</div>
+        <div className="mSub">census 2021</div>
       </div>
 
       <div className="metric">
-        <div className="m-label">active counties</div>
-        <div className="m-val c-txt">
+        <div className="mLabel">active counties</div>
+        <div className="mVal c-txt">
           41<span style={{ fontSize: 16, fontWeight: 400 }}> +1</span>
         </div>
-        <div className="m-sub">+ Municipality Bucharest</div>
+        <div className="mSub">+ Municipality Bucharest</div>
       </div>
     </div>
   )

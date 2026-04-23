@@ -1,0 +1,188 @@
+/* ── TopBar ──────────────────────────────────── */
+.topbar {
+  height: 58px;
+  background: rgba(5, 12, 24, 0.98);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border-md);
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+  gap: 16px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 100;
+}
+
+/* Gradient accent line at bottom */
+.topbar::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--blue) 25%, var(--teal) 60%, transparent 100%);
+  opacity: 0.55;
+}
+
+/* Brand block */
+.tbBrand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tbLogoMark {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(79, 172, 254, 0.22);
+  border-radius: var(--r-sm);
+  background: rgba(79, 172, 254, 0.06);
+}
+
+.tbLogoText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tbLogo {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: linear-gradient(110deg, var(--txt) 40%, var(--blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  user-select: none;
+  line-height: 1;
+}
+
+.tbTagline {
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--txt4);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  animation: pulse-green 2.2s ease-in-out infinite;
+  -webkit-text-fill-color: initial;
+}
+
+.tbDiv {
+  width: 1px;
+  height: 18px;
+  background: var(--border-hi);
+  flex-shrink: 0;
+}
+
+/* Online status indicators */
+.tbOnlineIndicators {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.tbOnlineItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--txt4);
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
+.tbODot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  flex-shrink: 0;
+}
+
+.tbSpacer { flex: 1; }
+
+.tbStatus {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.upd {
+  font-size: 10px;
+  color: var(--txt3);
+  letter-spacing: 0.2px;
+}
+
+.liveBadge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  border-radius: 99px;
+  padding: 4px 12px;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 1.4px;
+  cursor: default;
+  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+
+.liveBadge:hover {
+  border-color: rgba(16, 185, 129, 0.48);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.18);
+}
+
+.liveRing {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.liveRing::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  border: 1.5px solid var(--green);
+  animation: livering 1.6s ease-out infinite;
+}
+
+.clock {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--txt2);
+  letter-spacing: 1px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-md);
+  padding: 5px 12px;
+  border-radius: var(--r-sm);
+  cursor: default;
+  transition: border-color var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+
+.clock:hover {
+  border-color: var(--blue);
+  color: var(--txt);
+}

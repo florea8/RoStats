@@ -1,1 +1,312 @@
-﻿
+﻿@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ══════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════ */
+:root {
+  /* ── Backgrounds ── */
+  --bg-root:      #060d18;
+  --bg-card:      #0a1525;
+  --bg-card2:     #0d1c30;
+  --bg-elevated:  #12243d;
+  --bg-hover:     #182e4a;
+  --bg-nav:       #050c18;
+
+  /* ── Borders ── */
+  --border:     rgba(79, 172, 254, 0.07);
+  --border-md:  rgba(79, 172, 254, 0.14);
+  --border-hi:  rgba(79, 172, 254, 0.30);
+
+  /* ── Accent — Blue ── */
+  --blue:        #4facfe;
+  --blue-pale:   rgba(79, 172, 254, 0.15);
+  --blue-glow:   rgba(79, 172, 254, 0.32);
+
+  /* ── Teal ── */
+  --teal:        #00f0c8;
+  --teal-pale:   rgba(0, 240, 200, 0.13);
+
+  /* ── Green / healthy ── */
+  --green:       #1de9a0;
+  --green-pale:  rgba(29, 233, 160, 0.14);
+
+  /* ── Amber / warning ── */
+  --amber:       #fbbf24;
+  --amber-pale:  rgba(251, 191, 36, 0.15);
+
+  /* ── Red / danger ── */
+  --red:         #f87171;
+  --red-pale:    rgba(248, 113, 113, 0.15);
+
+  /* ── Violet / secondary ── */
+  --violet:      #c4b5fd;
+  --violet-pale: rgba(196, 181, 253, 0.14);
+
+  /* ── Legacy compat ── */
+  --a:    #1de9a0;
+  --a2:   #00f0c8;
+  --warn: #fbbf24;
+  --cyan: #00f0c8;
+
+  /* ── Text ── */
+  --txt:   #e8f2ff;
+  --txt2:  #8ab4d8;
+  --txt3:  #567898;
+  --txt4:  #2e4d6a;
+
+  /* ── Fonts ── */
+  --sans:  'Inter', system-ui, -apple-system, sans-serif;
+  --mono:  'JetBrains Mono', 'Courier New', monospace;
+  --body:  'Inter', system-ui, sans-serif;
+  --cond:  'Inter', system-ui, sans-serif;
+
+  /* ── Motion ── */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --fast: 0.15s;
+  --mid:  0.25s;
+  --slow: 0.4s;
+
+  /* ── Radius ── */
+  --r-sm:  6px;
+  --r-md:  10px;
+  --r-lg:  16px;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.7), 0 0 1px rgba(0,0,0,0.5);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.55), 0 2px 4px rgba(0,0,0,0.35);
+  --shadow-lg: 0 16px 48px rgba(0,0,0,0.65), 0 4px 12px rgba(0,0,0,0.45);
+}
+
+/* ══════════════════════════════════
+   RESET
+══════════════════════════════════ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { height: 100%; }
+
+body {
+  height: 100%;
+  background: var(--bg-root);
+  color: var(--txt);
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root { height: 100%; }
+
+/* ── Scrollbar ── */
+* { scrollbar-width: thin; scrollbar-color: rgba(148,163,184,0.2) transparent; }
+*::-webkit-scrollbar { width: 4px; height: 4px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: rgba(148,163,184,0.2); border-radius: 99px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(148,163,184,0.38); }
+
+/* ══════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════ */
+@keyframes bootfade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(16,185,129,0.5); }
+  50%       { box-shadow: 0 0 0 5px rgba(16,185,129,0); }
+}
+
+@keyframes livering {
+  0%   { transform: scale(1);   opacity: 0.8; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@keyframes bar-fill {
+  from { width: 0; }
+}
+
+/* ══════════════════════════════════
+   LEAFLET OVERRIDES
+══════════════════════════════════ */
+.leaflet-container { background: #0a1928 !important; cursor: crosshair !important; }
+.leaflet-control-zoom,
+.leaflet-control-attribution { display: none !important; }
+.leaflet-popup-content-wrapper {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-hi) !important;
+  border-radius: var(--r-md) !important;
+  color: var(--txt) !important;
+  box-shadow: var(--shadow-lg) !important;
+  font-family: var(--sans) !important;
+  font-size: 12px !important;
+}
+.leaflet-popup-tip { background: var(--bg-elevated) !important; }
+.leaflet-popup-content { margin: 12px 14px !important; line-height: 1.7 !important; }
+
+/* ══════════════════════════════════
+   GLOBAL ANIMATION CLASSES
+══════════════════════════════════ */
+.boot-fade { animation: bootfade 0.5s var(--ease) both; }
+.d1 { animation-delay: 0.05s; }
+.d2 { animation-delay: 0.10s; }
+.d3 { animation-delay: 0.15s; }
+.d4 { animation-delay: 0.20s; }
+.d5 { animation-delay: 0.28s; }
+
+/* ══════════════════════════════════
+   GLOBAL COLOR UTILITIES
+══════════════════════════════════ */
+.c-a    { color: var(--green); }
+.c-a2   { color: var(--teal); }
+.c-red  { color: var(--red); }
+.c-warn { color: var(--amber); }
+.c-txt  { color: var(--txt); }
+
+/* ══════════════════════════════════
+   POPUP CLASSES (Leaflet = outside React tree)
+══════════════════════════════════ */
+.popup-head {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border-md);
+  padding-bottom: 6px;
+  margin-bottom: 7px;
+}
+.popup-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 11px;
+  margin-bottom: 2px;
+}
+.popup-row span:first-child { font-size: 10px; color: var(--txt3); text-transform: uppercase; letter-spacing: 0.4px; }
+.popup-row span:last-child  { color: var(--txt); font-weight: 500; }
+
+/* ══════════════════════════════════
+   ROOT LAYOUT
+══════════════════════════════════ */
+.root-layout {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 15% 5%, rgba(79,172,254,0.055) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 85% 95%, rgba(0,240,200,0.04) 0%, transparent 60%);
+}
+
+/* 3-column main area: nav | map | detail */
+.main-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 200px 1fr 360px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 1400px) {
+  .main-layout { grid-template-columns: 182px 1fr 330px; }
+}
+
+@media (max-width: 900px) {
+  .root-layout { overflow-y: auto; }
+  .main-layout { grid-template-columns: 1fr; height: auto; }
+}
+
+/* Legacy — keep for any stale refs */
+.content-layout { display: none; }
+.map-section { display: contents; }
+.sidebar { display: contents; }
+
+/* ══════════════════════════════════
+   SHARED PANEL STYLES
+══════════════════════════════════ */
+.panel {
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: var(--bg-card);
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px 10px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.phTitle {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: var(--txt3);
+}
+
+.phSrc {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--txt4);
+  text-decoration: none;
+  padding: 2px 8px;
+  border: 1px solid var(--border-md);
+  border-radius: 99px;
+  letter-spacing: 0.3px;
+  transition: color var(--fast) var(--ease), border-color var(--fast) var(--ease);
+}
+
+.phSrc:hover {
+  color: var(--blue);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 14px 16px;
+  font-size: 11px;
+  color: var(--txt3);
+}
+
+.spin {
+  width: 13px;
+  height: 13px;
+  border: 2px solid var(--border-md);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+.sparkWrap {
+  padding: 10px 16px 13px;
+  background: var(--bg-card);
+}
+
+.sparkLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--txt3);
+  margin-bottom: 8px;
+}
+
