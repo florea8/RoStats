@@ -1,0 +1,31 @@
+﻿import TopBar from './components/TopBar'
+import MetricsStrip from './components/MetricsStrip'
+import LeftPanel from './components/LeftPanel'
+import MapCenter from './components/MapCenter'
+import RightPanel from './components/RightPanel'
+import Footer from './components/Footer'
+
+import { useEarthquakes } from './hooks/useEarthquakes'
+import { useWeather } from './hooks/useWeather'
+import { useAQI } from './hooks/useAQI'
+import { useTraffic } from './hooks/useTraffic'
+
+export default function App() {
+  const earthquakes = useEarthquakes()
+  const weather = useWeather()
+  const aqi = useAQI()
+  const traffic = useTraffic()
+
+  return (
+    <>
+      <TopBar />
+      <MetricsStrip earthquakes={earthquakes} weather={weather} aqi={aqi} />
+      <div className="shell">
+        <LeftPanel earthquakes={earthquakes} />
+        <MapCenter earthquakes={earthquakes} aqi={aqi} />
+        <RightPanel aqi={aqi} weather={weather} traffic={traffic} />
+      </div>
+      <Footer />
+    </>
+  )
+}
