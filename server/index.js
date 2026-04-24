@@ -4,7 +4,10 @@ const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
-const weatherRouter = require('./routes/weather');
+const weatherRouter     = require('./routes/weather');
+const earthquakesRouter = require('./routes/earthquakes');
+const aqiRouter         = require('./routes/aqi');
+const historyRouter     = require('./routes/history');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,7 +33,10 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // ── Routes ──
-app.use('/api/weather', weatherRouter);
+app.use('/api/weather',      weatherRouter);
+app.use('/api/earthquakes',  earthquakesRouter);
+app.use('/api/aqi',          aqiRouter);
+app.use('/api/history',      historyRouter);
 
 // ── Health check ──
 app.get('/api/health', (_req, res) => {
