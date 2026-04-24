@@ -1,15 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 
-const EQ_URL =
-  'https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson' +
-  '&minlatitude=43.5&maxlatitude=48.5&minlongitude=20.0&maxlongitude=30.0' +
-  '&minmagnitude=1.0&orderby=time&limit=12'
+const API_BASE = import.meta.env.VITE_API_BASE || ''
 
 async function fetchEarthquakes() {
-  const res = await fetch(EQ_URL)
-  if (!res.ok) throw new Error('USGS fetch failed')
+  const res = await fetch(`${API_BASE}/api/earthquakes`)
+  if (!res.ok) throw new Error('Earthquakes fetch failed')
   const json = await res.json()
-  return json.features
+  if (!json.ok) throw new Error(json.error || 'API error')
+  return json.data
 }
 
 export function useEarthquakes() {
