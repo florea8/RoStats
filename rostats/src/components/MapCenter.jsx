@@ -39,7 +39,7 @@ function CoordTracker({ setCoords }) {
   return null
 }
 
-export default function MapCenter({ earthquakes, aqi, weather }) {
+export default function MapCenter({ earthquakes, aqi, weather, activeSection }) {
   const [coords, setCoords] = useState('45.940° N  24.970° E')
   const { data: quakes } = earthquakes
   const { data: aqiData } = aqi
@@ -67,27 +67,8 @@ export default function MapCenter({ earthquakes, aqi, weather }) {
           <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png" maxZoom={19} attribution="&copy; CartoDB" />
           <CoordTracker setCoords={setCoords} />
 
-          {/* City markers — colored by AQI */}
-          {CITIES.map(c => {
-            const aqiVal = aqiData?.[c.id]
-            const color = aqiVal
-              ? aqiVal <= 50 ? '#10b981' : aqiVal <= 100 ? '#f59e0b' : '#ef4444'
-              : '#3b82f6'
-            const temp = wxData?.[c.id]?.temp
-            return (
-              <Marker key={c.id} position={[c.lat, c.lng]} icon={mkIcon(color)}>
-                <Popup>
-                  <div className="popup-head">{c.name.toUpperCase()}</div>
-                  <div className="popup-row"><span>TEMP</span><span>{temp != null ? `${temp}°C` : '—'}</span></div>
-                  <div className="popup-row"><span>AQI</span><span>{aqiVal ?? '—'}</span></div>
-                  <div className="popup-row"><span>VREME</span><span>{wxData?.[c.id]?.description ?? '—'}</span></div>
-                </Popup>
-              </Marker>
-            )
-          })}
-
-          {/* Earthquake markers */}
-          {quakes?.slice(0, 12).map((q, i) => {
+          {/* ── Seismic markers ── */}
+          {activeSection === 'seismic' && quakes?.slice(0, 12).map((q, i) => {
             const p   = q.properties
             const mag = parseFloat(p.mag)
             const dep = Math.round(q.geometry.coordinates[2])
@@ -109,25 +90,69 @@ export default function MapCenter({ earthquakes, aqi, weather }) {
               </CircleMarker>
             )
           })}
+
+          {/* ── AQI markers ── */}
+          {activeSection === 'aqi' && CITIES.map(c => {
+            const v = aqiData?.[c.id]
+            const color = v ? (v <= 50 ? '#10b981' : v <= 100 ? '#f59e0b' : '#ef4444') : '#3b82f6'
+            return (
+              <Marker key={c.id} position={[c.lat, c.lng]} icon={mkIcon(color)}>
+                <Popup>
+                  <div className="popup-head">{c.name.toUpperCase()}</div>
+                  <div className="popup-row"><span>AQI</span><span>{v ?? '—'}</span></div>
+                  <div className="popup-row"><span>CALITATE</span><span>{v ? (v <= 50 ? 'Bun' : v <= 100 ? 'Moderat' : 'Ridicat') : '—'}</span></div>
+                </Popup>
+              </Marker>
+            )
+          })}
+
+          {/* ── Weather markers ── */}
+          {activeSection === 'weather' && CITIES.map(c => {
+            const w = wxData?.[c.id]
+            const t = w?.temp
+            const color = t == null ? '#3b82f6' : t < 0 ? '#93c5fd' : t < 10 ? '#60a5fa' : t < 20 ? '#10b981' : t < 30 ? '#f59e0b' : '#ef4444'
+            return (
+              <Marker key={c.id} position={[c.lat, c.lng]} icon={mkIcon(color)}>
+                <Popup>
+                  <div className="popup-head">{c.name.toUpperCase()}</div>
+                  <div className="popup-row"><span>TEMP</span><span>{t != null ? `${t}°C` : '—'}</span></div>
+                  <div className="popup-row"><span>VREME</span><span>{w?.description ?? '—'}</span></div>
+                  <div className="popup-row"><span>UMIDITATE</span><span>{w?.humidity != null ? `${w.humidity}%` : '—'}</span></div>
+                  <div className="popup-row"><span>VÂNT</span><span>{w?.wind != null ? `${w.wind} m/s` : '—'}</span></div>
+                </Popup>
+              </Marker>
+            )
+          })}
         </MapContainer>
 
         <div className="mapChip mapChipTitle">HARTA INTERACTIVĂ · ROMÂNIA</div>
         <div className="mapChip mapChipCoords">{coords}</div>
 
         <div className="mapLegend">
-          <div className="legSection">
-            <div className="legTitle">MAGNITUDINE</div>
-            {[['M ≥ 4', '#ef4444'], ['M 3–4', '#f59e0b'], ['M < 3', '#10b981']].map(([l, c]) => (
-              <div className="leg" key={l}><span className="ldot" style={{ background: c }} />{l}</div>
-            ))}
-          </div>
-          <div className="legDivider" />
-          <div className="legSection">
-            <div className="legTitle">AQI ORAȘ</div>
-            {[['Bun (≤50)', '#10b981'], ['Moderat (≤100)', '#f59e0b'], ['Ridicat (>100)', '#ef4444']].map(([l, c]) => (
-              <div className="leg" key={l}><span className="ldot" style={{ background: c }} />{l}</div>
-            ))}
-          </div>
+          {activeSection === 'seismic' && (
+            <div className="legSection">
+              <div className="legTitle">MAGNITUDINE</div>
+              {[['M ≥ 4', '#ef4444'], ['M 3–4', '#f59e0b'], ['M < 3', '#10b981']].map(([l, c]) => (
+                <div className="leg" key={l}><span className="ldot" style={{ background: c }} />{l}</div>
+              ))}
+            </div>
+          )}
+          {activeSection === 'aqi' && (
+            <div className="legSection">
+              <div className="legTitle">AQI ORAȘ</div>
+              {[['Bun (≤50)', '#10b981'], ['Moderat (≤100)', '#f59e0b'], ['Ridicat (>100)', '#ef4444']].map(([l, c]) => (
+                <div className="leg" key={l}><span className="ldot" style={{ background: c }} />{l}</div>
+              ))}
+            </div>
+          )}
+          {activeSection === 'weather' && (
+            <div className="legSection">
+              <div className="legTitle">TEMPERATURĂ</div>
+              {[['≥ 30°C', '#ef4444'], ['20–30°C', '#f59e0b'], ['10–20°C', '#10b981'], ['< 10°C', '#60a5fa']].map(([l, c]) => (
+                <div className="leg" key={l}><span className="ldot" style={{ background: c }} />{l}</div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

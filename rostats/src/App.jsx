@@ -25,7 +25,7 @@ export default function App() {
       <MetricsStrip earthquakes={earthquakes} weather={weather} aqi={aqi} />
       <div className="main-layout">
         <LeftNav active={activeSection} onSelect={setActiveSection} />
-        <MapCenter earthquakes={earthquakes} aqi={aqi} weather={weather} />
+        <MapCenter earthquakes={earthquakes} aqi={aqi} weather={weather} activeSection={activeSection} />
         <RightPanel
           activeSection={activeSection}
           earthquakes={earthquakes}
