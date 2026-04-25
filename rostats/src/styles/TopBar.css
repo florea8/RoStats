@@ -159,6 +159,18 @@
   flex-shrink: 0;
 }
 
+@media (max-width: 480px) {
+  .topbar { height: 46px; padding: 0 14px; gap: 8px; }
+  .tbTagline { display: none; }
+  .tbDiv { display: none; }
+  .tbOnlineIndicators { display: none; }
+  .upd { display: none; }
+  .tbLogoMark { width: 24px; height: 24px; }
+  .tbLogo { font-size: 13px; }
+  .liveBadge { padding: 3px 8px; font-size: 8px; letter-spacing: 1px; }
+  .clock { font-size: 11px; }
+}
+
 .liveRing::after {
   content: '';
   position: absolute;

@@ -47,3 +47,9 @@
 .fTag span {
   color: var(--txt3);
 }
+
+@media (max-width: 480px) {
+  .footer { padding: 0 14px; gap: 10px; }
+  .fSrc { display: none; }
+  .fSrc:last-of-type { display: block; }
+}

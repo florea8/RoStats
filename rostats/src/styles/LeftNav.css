@@ -109,6 +109,38 @@
   animation: pulse-green 2s ease infinite;
 }
 
+@media (max-width: 480px) {
+  .leftNav {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0;
+    gap: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--border-md);
+    scrollbar-width: none;
+  }
+  .leftNav::-webkit-scrollbar { display: none; }
+  .navHeader { display: none; }
+  .navFooter { display: none; }
+  .navItem {
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 16px;
+    margin: 0;
+    border-radius: 0;
+    flex-shrink: 0;
+    min-width: 64px;
+    border-bottom: 2px solid transparent;
+  }
+  .navItem.active { background: transparent; border-bottom-color: var(--nav-accent, var(--blue)); }
+  .navItem.active::before { display: none; }
+  .navDesc { display: none; }
+  .navLabel { font-size: 9px; letter-spacing: 0.3px; }
+  .navActiveDot { display: none; }
+}
+
 /* Bottom status */
 .navFooter {
   margin-top: auto;

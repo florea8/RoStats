@@ -223,6 +223,16 @@ body {
   .main-layout { grid-template-columns: 1fr; height: auto; }
 }
 
+@media (max-width: 480px) {
+  body { font-size: 12px; }
+  .root-layout { height: auto; min-height: 100%; }
+  /* Reorder: map first, then nav tabs, then detail panel */
+  .mapCenter    { order: 1; }
+  .leftNav      { order: 2; }
+  .detailPanel  { order: 3; }
+  .panelHead { padding: 9px 12px; }
+}
+
 /* Legacy — keep for any stale refs */
 .content-layout { display: none; }
 .map-section { display: contents; }

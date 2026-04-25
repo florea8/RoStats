@@ -8,6 +8,14 @@
   min-height: 0;
 }
 
+@media (max-width: 480px) {
+  .mapCenter { min-height: 260px; height: 260px; flex: none; }
+  .mapPane { height: 260px; flex: none; }
+  .mapChipTitle { display: none; }
+  .mapChipCoords { display: none; }
+  .mapLegend { display: none; }
+}
+
 /* ── Map Pane (top portion) ── */
 .mapPane {
   flex: 1;
