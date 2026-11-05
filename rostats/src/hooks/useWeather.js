@@ -1,18 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
+import { getJson } from '../utils/api'
 
-const API_BASE = import.meta.env.VITE_API_BASE || ''
 const CITIES = ['bucuresti', 'cluj', 'timisoara', 'iasi', 'constanta', 'brasov']
 
 // The API falls back to demo values itself (tagged source: 'demo'),
 // so a failed request here means the backend is unreachable.
 async function fetchAllWeather() {
   const results = await Promise.allSettled(
-    CITIES.map(city =>
-      fetch(`${API_BASE}/api/weather?city=${city}`).then(r => {
-        if (!r.ok) throw new Error('weather fetch failed')
-        return r.json()
-      })
-    )
+    CITIES.map(city => getJson(`/api/weather?city=${city}`))
   )
 
   if (results.every(r => r.status === 'rejected')) {

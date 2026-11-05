@@ -1,4 +1,4 @@
-import { aqiTag } from '../utils/colors'
+import { aqiColor, aqiTag, magColor } from '../utils/colors'
 import '../styles/MetricsStrip.css'
 
 export default function MetricsStrip({ earthquakes, weather, aqi }) {
@@ -7,15 +7,12 @@ export default function MetricsStrip({ earthquakes, weather, aqi }) {
   const bucAqi = aqi.data?.bucuresti
 
   const eqMag = latestEq ? parseFloat(latestEq.properties.mag).toFixed(1) : '—'
-  const eqColor = latestEq
-    ? latestEq.properties.mag >= 4 ? 'c-red' : latestEq.properties.mag >= 3 ? 'c-warn' : 'c-a'
-    : 'c-txt'
 
   return (
     <div className="metrics boot-fade d1">
       <div className="metric">
         <div className="mLabel">air quality · buc</div>
-        <div className={`mVal ${bucAqi <= 50 ? 'c-a' : bucAqi <= 100 ? 'c-warn' : 'c-red'}`}>
+        <div className="mVal c-txt" style={bucAqi != null ? { color: aqiColor(bucAqi) } : undefined}>
           {bucAqi ?? '—'}
         </div>
         <div className="mSub">
@@ -25,12 +22,12 @@ export default function MetricsStrip({ earthquakes, weather, aqi }) {
 
       <div className="metric">
         <div className="mLabel">latest earthquake</div>
-        <div className={`mVal ${eqColor}`}>
+        <div className="mVal c-txt" style={latestEq ? { color: magColor(latestEq.properties.mag) } : undefined}>
           {latestEq ? `M ${eqMag}` : '—'}
         </div>
         <div className="mSub">
           {latestEq
-            ? (latestEq.properties.place?.split(' of ').pop() ?? 'Romania').substring(0, 22)
+            ? (latestEq.properties.place ?? 'ROMANIA').substring(0, 22)
             : 'loading'}
         </div>
       </div>

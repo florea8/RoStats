@@ -131,9 +131,6 @@
   letter-spacing: 0.3px;
 }
 
-/* Legacy ref */
-.panelRight { display: contents; }
-
 /* ── AQI rows ── */
 .aqiRow {
   display: grid;

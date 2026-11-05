@@ -163,10 +163,7 @@ body {
 /* ══════════════════════════════════
    GLOBAL COLOR UTILITIES
 ══════════════════════════════════ */
-.c-a    { color: var(--green); }
 .c-a2   { color: var(--teal); }
-.c-red  { color: var(--red); }
-.c-warn { color: var(--amber); }
 .c-txt  { color: var(--txt); }
 
 /* ══════════════════════════════════
@@ -232,11 +229,6 @@ body {
   .detailPanel  { order: 3; }
   .panelHead { padding: 9px 12px; }
 }
-
-/* Legacy — keep for any stale refs */
-.content-layout { display: none; }
-.map-section { display: contents; }
-.sidebar { display: contents; }
 
 /* ══════════════════════════════════
    SHARED PANEL STYLES

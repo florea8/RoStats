@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Marker, Popup, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { magHex } from '../utils/colors'
+import { magHex, magColor, aqiHex, aqiColor, aqiTag } from '../utils/colors'
 import { timeAgo } from '../utils/time'
 import '../styles/MapCenter.css'
 
@@ -74,7 +74,7 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
             const p   = q.properties
             const mag = parseFloat(p.mag)
             const dep = q.depth_km
-            const loc = p.place?.split(' of ').pop() ?? '—'
+            const loc = p.place ?? '—'
             const r   = mag >= 4 ? 10 : mag >= 3 ? 7 : 4
             return (
               <CircleMarker
@@ -96,13 +96,13 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
           {/* ── AQI markers ── */}
           {activeSection === 'aqi' && CITIES.map(c => {
             const v = aqiData?.[c.id]
-            const color = v ? (v <= 50 ? '#10b981' : v <= 100 ? '#f59e0b' : '#ef4444') : '#3b82f6'
+            const color = v ? aqiHex(v) : '#3b82f6'
             return (
               <Marker key={c.id} position={[c.lat, c.lng]} icon={mkIcon(color)}>
                 <Popup>
                   <div className="popup-head">{c.name.toUpperCase()}</div>
                   <div className="popup-row"><span>AQI</span><span>{v ?? '—'}</span></div>
-                  <div className="popup-row"><span>CALITATE</span><span>{v ? (v <= 50 ? 'Bun' : v <= 100 ? 'Moderat' : 'Ridicat') : '—'}</span></div>
+                  <div className="popup-row"><span>CALITATE</span><span>{v ? aqiTag(v) : '—'}</span></div>
                 </Popup>
               </Marker>
             )
@@ -173,7 +173,7 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
             </div>
             <div className="mdpStat">
               <div className="mdpStatVal" style={{
-                color: maxMag24h ? (maxMag24h >= 4 ? 'var(--red)' : maxMag24h >= 3 ? 'var(--amber)' : 'var(--teal)') : 'var(--txt4)',
+                color: maxMag24h ? magColor(maxMag24h) : 'var(--txt4)',
               }}>{maxMag24h ? `M ${maxMag24h.toFixed(1)}` : '—'}</div>
               <div className="mdpStatLabel">MAG MAX</div>
             </div>
@@ -188,7 +188,7 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
                 M{parseFloat(latestQ.properties.mag).toFixed(1)}
               </span>
               <span className="mdpLqLoc">
-                {latestQ.properties.place?.split(' of ').pop()?.substring(0, 24) ?? '—'}
+                {latestQ.properties.place?.substring(0, 24) ?? '—'}
               </span>
               <span className="mdpLqTime">{timeAgo(latestQ.properties.time)}</span>
             </div>
@@ -204,7 +204,7 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
             {PANEL_CITIES.map(id => {
               const v = aqiData?.[id]
               if (!v) return null
-              const color = v <= 50 ? 'var(--green)' : v <= 100 ? 'var(--amber)' : 'var(--red)'
+              const color = aqiColor(v)
               const pct   = Math.min(100, (v / 150) * 100)
               return (
                 <div className="mdpAqiRow" key={id}>
