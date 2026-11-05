@@ -11,6 +11,13 @@ import { useWeather } from './hooks/useWeather'
 import { useAQI } from './hooks/useAQI'
 import { useTraffic } from './hooks/useTraffic'
 
+// Maps a React Query result to the status shown in the top bar.
+function sourceStatus(query, source) {
+  if (query.isError && !query.data) return 'error'
+  if (query.isPending) return 'loading'
+  return source ?? 'live'
+}
+
 export default function App() {
   const [activeSection, setActiveSection] = useState('seismic')
 
@@ -19,9 +26,18 @@ export default function App() {
   const aqi = useAQI()
   const traffic = useTraffic()
 
+  const status = {
+    seismic: sourceStatus(earthquakes, 'live'),
+    aqi:     sourceStatus(aqi, aqi.source),
+    weather: sourceStatus(weather, weather.source),
+  }
+
   return (
     <div className="root-layout">
-      <TopBar />
+      <TopBar
+        status={status}
+        updatedAt={Math.max(earthquakes.dataUpdatedAt, aqi.dataUpdatedAt, weather.dataUpdatedAt)}
+      />
       <MetricsStrip earthquakes={earthquakes} weather={weather} aqi={aqi} />
       <div className="main-layout">
         <LeftNav active={activeSection} onSelect={setActiveSection} />

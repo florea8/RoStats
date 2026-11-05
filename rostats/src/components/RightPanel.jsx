@@ -1,7 +1,32 @@
 import { useRef, useEffect } from 'react'
 import { aqiColor, aqiHex, aqiTag, magColor } from '../utils/colors'
 import { timeAgo } from '../utils/time'
+import SourceBadge from './SourceBadge'
 import '../styles/RightPanel.css'
+
+/* ── Header right side: data-source badge + link to the provider ── */
+function DetailMeta({ source, href, label }) {
+  return (
+    <div className="detailMeta">
+      <SourceBadge source={source} />
+      {href && <a className="phSrc" href={href} target="_blank" rel="noreferrer">{label} ↗</a>}
+    </div>
+  )
+}
+
+/* ── Earthquake count per day for the last 7 days (oldest first) ── */
+function dailyCounts(quakes, days = 7) {
+  const counts = {}
+  const now = Date.now()
+  for (let i = days - 1; i >= 0; i--) {
+    counts[new Date(now - i * 86400000).toDateString()] = 0
+  }
+  quakes.forEach(q => {
+    const d = new Date(q.properties.time).toDateString()
+    if (counts[d] !== undefined) counts[d]++
+  })
+  return Object.values(counts)
+}
 
 /* ── Shared canvas sparkline ── */
 function drawSparkline(canvas, values, color, fillColor) {
@@ -108,20 +133,11 @@ const CITY_LABELS = {
 function SeismicSection({ earthquakes }) {
   const canvasRef = useRef(null)
   const { data: quakes, isLoading, isError } = earthquakes
+  const counts = quakes ? dailyCounts(quakes) : []
 
   useEffect(() => {
-    if (!quakes?.length) return
-    const days = {}
-    const now = Date.now()
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date(now - i * 86400000).toDateString()
-      days[d] = 0
-    }
-    quakes.forEach(q => {
-      const d = new Date(q.properties.time).toDateString()
-      if (days[d] !== undefined) days[d]++
-    })
-    drawSparkline(canvasRef.current, Object.values(days), '#f87171', 'rgba(248,113,113,0.12)')
+    if (!quakes) return
+    drawSparkline(canvasRef.current, dailyCounts(quakes), '#f87171', 'rgba(248,113,113,0.12)')
   }, [quakes])
 
   return (
@@ -130,19 +146,20 @@ function SeismicSection({ earthquakes }) {
         <span className="detailIcon">{SECTION_ICONS.seismic}</span>
         <div>
           <div className="detailTitle">Activitate Seismică</div>
-          <div className="detailSub">Zona România · ultimele evenimente</div>
+          <div className="detailSub">Zona România · ultimele 30 de zile</div>
         </div>
-        <a className="phSrc" href="https://earthquake.usgs.gov" target="_blank" rel="noreferrer">USGS ↗</a>
+        <DetailMeta source={isError ? 'error' : quakes && 'live'} href="https://www.emsc-csem.org" label="EMSC" />
       </div>
 
       {isLoading && <div className="loading"><div className="spin" />Se încarcă datele seismice…</div>}
-      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Eroare conexiune USGS</div>}
+      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Eroare conexiune EMSC</div>}
+      {quakes?.length === 0 && <div className="loading">Niciun cutremur înregistrat în ultimele 30 de zile.</div>}
 
       <div className="eqList">
         {quakes?.slice(0, 10).map((q, i) => {
           const p = q.properties
           const mag = parseFloat(p.mag).toFixed(1)
-          const depth = Math.round(q.geometry.coordinates[2])
+          const depth = q.depth_km
           const loc = p.place?.split(' of ').pop() ?? '—'
           return (
             <div className="eqRow" key={i}>
@@ -161,13 +178,7 @@ function SeismicSection({ earthquakes }) {
         <div className="panelHead">
           <span className="phTitle">Frecvență seismică · 7 zile</span>
           <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--red)', letterSpacing: 1 }}>
-            {quakes?.length ? Math.max(...Object.values(
-              quakes.reduce((acc, q) => {
-                const d = new Date(q.properties.time).toDateString()
-                acc[d] = (acc[d] || 0) + 1
-                return acc
-              }, {})
-            )) : 0}/ZI MAX
+            {counts.length ? Math.max(...counts) : 0}/ZI MAX
           </span>
         </div>
         <div className="sparkWrap">
@@ -182,12 +193,13 @@ function SeismicSection({ earthquakes }) {
 /* ══ SECTION: AQI ══ */
 function AqiSection({ aqi }) {
   const canvasRef = useRef(null)
-  const { data: aqiData, aqiHistory, isLoading } = aqi
+  const { data: aqiData, aqiHistory, isLoading, isError, source } = aqi
+  const hasTrend = aqiHistory.length >= 2
 
   useEffect(() => {
-    if (!aqiHistory?.length) return
+    if (!hasTrend) return
     drawSparkline(canvasRef.current, aqiHistory, '#1de9a0', 'rgba(29,233,160,0.11)')
-  }, [aqiHistory])
+  }, [aqiHistory, hasTrend])
 
   return (
     <>
@@ -195,12 +207,13 @@ function AqiSection({ aqi }) {
         <span className="detailIcon">{SECTION_ICONS.aqi}</span>
         <div>
           <div className="detailTitle">Calitatea Aerului</div>
-          <div className="detailSub">Indice AQI · stații active</div>
+          <div className="detailSub">Indice US AQI · model european CAMS</div>
         </div>
-        <a className="phSrc" href="https://openaq.org" target="_blank" rel="noreferrer">OpenAQ ↗</a>
+        <DetailMeta source={isError ? 'error' : source} href="https://open-meteo.com/en/docs/air-quality-api" label="Open-Meteo" />
       </div>
 
       {isLoading && <div className="loading"><div className="spin" />Se încarcă datele AQI…</div>}
+      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Eroare conexiune AQI</div>}
 
       {CITIES.map(id => {
         const v = aqiData?.[id]
@@ -225,12 +238,14 @@ function AqiSection({ aqi }) {
         <div className="panelHead">
           <span className="phTitle">AQI București · tendință 24h</span>
           <span style={{ color: 'var(--green)', fontFamily: 'var(--mono)', fontSize: 9 }}>
-            {aqiHistory?.length ? aqiHistory[aqiHistory.length - 1] + ' ACUM' : ''}
+            {aqiData?.bucuresti != null ? aqiData.bucuresti + ' ACUM' : ''}
           </span>
         </div>
         <div className="sparkWrap">
-          <div className="sparkLabel"><span>trend orar</span></div>
-          <canvas ref={canvasRef} height={54} style={{ width: '100%', display: 'block' }} />
+          <div className="sparkLabel"><span>medie orară · PostgreSQL</span></div>
+          {hasTrend
+            ? <canvas ref={canvasRef} height={54} style={{ width: '100%', display: 'block' }} />
+            : <div className="sparkEmpty">Istoricul se acumulează — revino peste câteva ore.</div>}
         </div>
       </div>
     </>
@@ -239,19 +254,20 @@ function AqiSection({ aqi }) {
 
 /* ══ SECTION: Weather ══ */
 function WeatherSection({ weather }) {
-  const { data: wxData, isLoading } = weather
+  const { data: wxData, isLoading, isError, source } = weather
   return (
     <>
       <div className="detailHeader">
         <span className="detailIcon">{SECTION_ICONS.weather}</span>
         <div>
           <div className="detailTitle">Vreme</div>
-          <div className="detailSub">Prognoză meteo · orașe principale</div>
+          <div className="detailSub">Condiții actuale · orașe principale</div>
         </div>
-        <a className="phSrc" href="https://openweathermap.org" target="_blank" rel="noreferrer">OWM ↗</a>
+        <DetailMeta source={isError ? 'error' : source} href="https://openweathermap.org" label="OWM" />
       </div>
 
       {isLoading && <div className="loading"><div className="spin" />Se încarcă prognoza…</div>}
+      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Eroare conexiune meteo</div>}
 
       <div className="wxGrid">
         {CITIES.map(id => {
@@ -281,7 +297,7 @@ function WeatherSection({ weather }) {
 
 /* ══ SECTION: Traffic ══ */
 function TrafficSection({ traffic }) {
-  const { data: trafficData } = traffic
+  const { data: trafficData, source } = traffic
   return (
     <>
       <div className="detailHeader">
@@ -290,6 +306,7 @@ function TrafficSection({ traffic }) {
           <div className="detailTitle">Trafic</div>
           <div className="detailSub">Drumuri principale · estimat</div>
         </div>
+        <DetailMeta source={source} />
       </div>
 
       <div className="trLegend">
@@ -313,7 +330,10 @@ function TrafficSection({ traffic }) {
         )
       })}
 
-      <div className="trNote">Datele de trafic sunt estimate în funcție de ora din zi și comportamente tipice de trafic.</div>
+      <div className="trNote">
+        Date simulate: starea fiecărui drum este estimată după ora din zi (ore de vârf,
+        trafic normal, noapte). Nu provin dintr-o sursă de trafic live.
+      </div>
     </>
   )
 }
@@ -335,9 +355,9 @@ function IndicatorsSection() {
         <span className="detailIcon">{SECTION_ICONS.indicators}</span>
         <div>
           <div className="detailTitle">Indicatori Naționali</div>
-          <div className="detailSub">Date economice · INS Romania</div>
+          <div className="detailSub">Date economice · INS România</div>
         </div>
-        <a className="phSrc" href="https://insse.ro" target="_blank" rel="noreferrer">INS ↗</a>
+        <DetailMeta source="static" href="https://insse.ro" label="INS" />
       </div>
 
       <div className="msGrid">
@@ -355,6 +375,10 @@ function IndicatorsSection() {
             </div>
           )
         })}
+      </div>
+
+      <div className="trNote">
+        Valori preluate manual din publicațiile INS; nu se actualizează automat.
       </div>
     </>
   )

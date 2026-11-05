@@ -1,52 +1,36 @@
 import { useQuery } from '@tanstack/react-query'
-import { useRef } from 'react'
 
 const API_BASE = import.meta.env.VITE_API_BASE || ''
 
-const AQI_BASE = {
-  bucuresti: 42, cluj: 31, timisoara: 27,
-  iasi: 58, constanta: 36, brasov: 22,
-}
-
-function generateFallback() {
-  const data = {}
-  Object.entries(AQI_BASE).forEach(([city, base]) => {
-    data[city] = Math.max(5, Math.round(base + (Math.random() - 0.5) * 14))
-  })
-  return data
+async function getJson(path) {
+  const res = await fetch(`${API_BASE}${path}`)
+  if (!res.ok) throw new Error(`${path} failed: ${res.status}`)
+  const json = await res.json()
+  if (!json.ok) throw new Error(json.error || 'API error')
+  return json
 }
 
 export function useAQI() {
-  const historyRef = useRef(
-    Array.from({ length: 16 }, () => Math.max(5, Math.round(42 + (Math.random() - 0.5) * 20)))
-  )
-
-  const query = useQuery({
+  // Current AQI per city. Open-Meteo updates hourly, so 10 min is plenty.
+  const current = useQuery({
     queryKey: ['aqi'],
-    queryFn: async () => {
-      try {
-        const res = await fetch(`${API_BASE}/api/aqi`)
-        if (!res.ok) throw new Error()
-        const json = await res.json()
-        if (!json.ok) throw new Error()
-        const data = json.data
-        if (data?.bucuresti != null) {
-          historyRef.current = [...historyRef.current, data.bucuresti].slice(-24)
-        }
-        return data
-      } catch {
-        const data = generateFallback()
-        historyRef.current = [...historyRef.current, data.bucuresti].slice(-24)
-        return data
-      }
-    },
-    refetchInterval: 60 * 1000,
-    staleTime: 55 * 1000,
-    placeholderData: generateFallback,
+    queryFn: () => getJson('/api/aqi'),
+    refetchInterval: 10 * 60 * 1000,
+    staleTime: 9 * 60 * 1000,
+  })
+
+  // Real 24h trend for Bucharest, aggregated hourly from PostgreSQL.
+  const history = useQuery({
+    queryKey: ['aqi-history', 'bucuresti'],
+    queryFn: () => getJson('/api/history/aqi?city=bucuresti&hours=24'),
+    refetchInterval: 10 * 60 * 1000,
+    staleTime: 9 * 60 * 1000,
   })
 
   return {
-    ...query,
-    aqiHistory: historyRef.current,
+    ...current,
+    data: current.data?.data,
+    source: current.data?.source,
+    aqiHistory: history.data?.data.map(row => row.avg_aqi) ?? [],
   }
 }

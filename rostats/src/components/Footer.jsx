@@ -1,16 +1,24 @@
 import '../styles/Footer.css'
 
+const SOURCES = [
+  ['EMSC',           'https://www.emsc-csem.org'],
+  ['Open-Meteo',     'https://open-meteo.com/en/docs/air-quality-api'],
+  ['OpenWeatherMap', 'https://openweathermap.org'],
+  ['INS',            'https://insse.ro'],
+]
+
 export default function Footer() {
   return (
     <footer className="footer boot-fade d5">
-      <a className="fSrc" href="https://earthquake.usgs.gov" target="_blank" rel="noreferrer">USGS</a>
-      <a className="fSrc" href="https://openaq.org" target="_blank" rel="noreferrer">OpenAQ</a>
-      <a className="fSrc" href="https://openweathermap.org" target="_blank" rel="noreferrer">OpenWeatherMap</a>
-      <a className="fSrc" href="https://insse.ro" target="_blank" rel="noreferrer">INSSE</a>
-      <a className="fSrc" href="https://data.gov.ro" target="_blank" rel="noreferrer">data.gov.ro</a>
+      {SOURCES.map(([name, href]) => (
+        <a className="fSrc" key={name} href={href} target="_blank" rel="noreferrer">{name}</a>
+      ))}
       <div className="fSpacer" />
       <div className="fTag">
-        RoStats v1.0 · <span>github.com/florea8/rostats</span>
+        RoStats v1.0 ·{' '}
+        <a href="https://github.com/florea8/RoStats" target="_blank" rel="noreferrer">
+          <span>github.com/florea8/RoStats</span>
+        </a>
       </div>
     </footer>
   )

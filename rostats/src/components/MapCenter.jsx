@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Marker, Popup, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { magColor, magHex, aqiHex } from '../utils/colors'
+import { magHex } from '../utils/colors'
 import { timeAgo } from '../utils/time'
 import '../styles/MapCenter.css'
 
@@ -45,7 +45,9 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
   const { data: aqiData } = aqi
   const { data: wxData } = weather
 
-  const last24h   = quakes?.filter(q => Date.now() - q.properties.time < 86400000) ?? []
+  // "Last 24h" is measured from when the data was fetched, which keeps render pure.
+  const fetchedAt = earthquakes.dataUpdatedAt
+  const last24h   = quakes?.filter(q => fetchedAt - q.properties.time < 86400000) ?? []
   const maxMag24h = last24h.length > 0 ? Math.max(...last24h.map(q => parseFloat(q.properties.mag))) : null
   const latestQ   = quakes?.[0]
 
@@ -71,7 +73,7 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
           {activeSection === 'seismic' && quakes?.slice(0, 12).map((q, i) => {
             const p   = q.properties
             const mag = parseFloat(p.mag)
-            const dep = Math.round(q.geometry.coordinates[2])
+            const dep = q.depth_km
             const loc = p.place?.split(' of ').pop() ?? '—'
             const r   = mag >= 4 ? 10 : mag >= 3 ? 7 : 4
             return (

@@ -1,0 +1,21 @@
+/* ── SourceBadge ── */
+.srcBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  font-family: var(--mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  line-height: 1.3;
+  white-space: nowrap;
+  cursor: help;
+}
+
+.srcBadge--live      { color: var(--green);  background: var(--green-pale); }
+.srcBadge--demo,
+.srcBadge--simulated { color: var(--amber);  background: var(--amber-pale); }
+.srcBadge--static    { color: var(--violet); background: var(--violet-pale); }
+.srcBadge--error     { color: var(--red);    background: var(--red-pale); }

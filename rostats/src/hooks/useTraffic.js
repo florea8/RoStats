@@ -1,30 +1,31 @@
 import { useQuery } from '@tanstack/react-query'
 
+// SIMULATED: there is no live traffic feed yet. Each route has a typical
+// state for off-peak, normal and rush hours; the UI labels this as simulated.
 const ROUTES = [
-  { name: 'A1  BUC – PITEȘTI',   states: ['FREE', 'FREE', 'SLOW', 'FREE'] },
-  { name: 'A2  BUC – CONSTANȚA', states: ['SLOW', 'SLOW', 'HEAVY', 'SLOW'] },
-  { name: 'A3  BUC – CLUJ',      states: ['FREE', 'FREE', 'FREE', 'SLOW'] },
-  { name: 'DN1 BUC – BRAȘOV',    states: ['SLOW', 'HEAVY', 'SLOW', 'FREE'] },
-  { name: 'DN7 RM.VÂL – SIBIU',  states: ['FREE', 'FREE', 'FREE', 'FREE'] },
+  { name: 'A1  BUC – PITEȘTI',   offPeak: 'FREE', normal: 'FREE', rush: 'SLOW'  },
+  { name: 'A2  BUC – CONSTANȚA', offPeak: 'FREE', normal: 'SLOW', rush: 'HEAVY' },
+  { name: 'A3  BUC – CLUJ',      offPeak: 'FREE', normal: 'FREE', rush: 'SLOW'  },
+  { name: 'DN1 BUC – BRAȘOV',    offPeak: 'FREE', normal: 'SLOW', rush: 'HEAVY' },
+  { name: 'DN7 RM.VÂL – SIBIU',  offPeak: 'FREE', normal: 'FREE', rush: 'SLOW'  },
 ]
 
-function estimateTraffic() {
-  const h = new Date().getHours()
-  const isPeak = (h >= 7 && h <= 9) || (h >= 16 && h <= 19)
+function period(hour) {
+  if ((hour >= 7 && hour <= 9) || (hour >= 16 && hour <= 19)) return 'rush'
+  if (hour >= 22 || hour <= 5) return 'offPeak'
+  return 'normal'
+}
 
-  return ROUTES.map(r => {
-    const idx = isPeak
-      ? Math.floor(Math.random() * 2 + 1)
-      : Math.floor(Math.random() * 2)
-    return { name: r.name, status: r.states[idx] ?? r.states[0] }
-  })
+function simulateTraffic() {
+  const p = period(new Date().getHours())
+  return ROUTES.map(r => ({ name: r.name, status: r[p] }))
 }
 
 export function useTraffic() {
-  return useQuery({
+  const query = useQuery({
     queryKey: ['traffic'],
-    queryFn: estimateTraffic,
-    refetchInterval: 2 * 60 * 1000,
-    staleTime: 90 * 1000,
+    queryFn: simulateTraffic,
+    refetchInterval: 5 * 60 * 1000,
   })
+  return { ...query, source: 'simulated' }
 }

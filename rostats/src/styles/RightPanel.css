@@ -23,6 +23,23 @@
   background-image: linear-gradient(to right, rgba(79,172,254,0.04), transparent 60%);
 }
 
+.detailMeta {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.sparkEmpty {
+  height: 54px;
+  display: flex;
+  align-items: center;
+  font-size: 9.5px;
+  font-style: italic;
+  color: var(--txt4);
+}
+
 .detailIcon {
   width: 34px;
   height: 34px;

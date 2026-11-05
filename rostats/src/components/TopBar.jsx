@@ -2,18 +2,31 @@ import { useState, useEffect } from 'react'
 import { formatTime, formatUpdated } from '../utils/time'
 import '../styles/TopBar.css'
 
-export default function TopBar() {
-  const [clock, setClock] = useState(formatTime())
-  const [updated, setUpdated] = useState('')
+const STATUS_TITLE = {
+  live:    'Sursă activă — date reale',
+  demo:    'Sursă indisponibilă — valori demo',
+  error:   'Sursă offline',
+  loading: 'Se conectează…',
+}
+
+function SourceStatus({ label, status }) {
+  return (
+    <div className="tbOnlineItem" title={STATUS_TITLE[status]}>
+      <span className={`tbODot tbODot--${status}`} />{label}
+    </div>
+  )
+}
+
+/**
+ * status:    { seismic, aqi, weather } each one of 'live' | 'demo' | 'error' | 'loading'
+ * updatedAt: timestamp (ms) of the most recent successful data fetch, or 0
+ */
+export default function TopBar({ status, updatedAt }) {
+  const [clock, setClock] = useState(formatTime)
+  const updated = updatedAt ? formatUpdated(new Date(updatedAt)) : ''
 
   useEffect(() => {
     const id = setInterval(() => setClock(formatTime()), 1000)
-    return () => clearInterval(id)
-  }, [])
-
-  useEffect(() => {
-    setUpdated(formatUpdated())
-    const id = setInterval(() => setUpdated(formatUpdated()), 5 * 60 * 1000)
     return () => clearInterval(id)
   }, [])
 
@@ -30,9 +43,9 @@ export default function TopBar() {
       </div>
       <div className="tbDiv" />
       <div className="tbOnlineIndicators">
-        <div className="tbOnlineItem"><span className="tbODot" />SEISMIC</div>
-        <div className="tbOnlineItem"><span className="tbODot" />AQI</div>
-        <div className="tbOnlineItem"><span className="tbODot" />METEO</div>
+        <SourceStatus label="SEISMIC" status={status.seismic} />
+        <SourceStatus label="AQI"     status={status.aqi} />
+        <SourceStatus label="METEO"   status={status.weather} />
       </div>
       <div className="tbSpacer" />
       <div className="tbStatus">

@@ -115,6 +115,11 @@
   flex-shrink: 0;
 }
 
+/* Status dots reflect the real state of each data source */
+.tbODot--demo    { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+.tbODot--error   { background: var(--red);   box-shadow: 0 0 6px var(--red); }
+.tbODot--loading { background: var(--txt4);  box-shadow: none; }
+
 .tbSpacer { flex: 1; }
 
 .tbStatus {
