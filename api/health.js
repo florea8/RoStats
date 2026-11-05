@@ -1,3 +1,4 @@
-module.exports = (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
-};
+// GET /api/health — Vercel Serverless Function (logic lives in server/handlers.js)
+const { health, getOnly } = require('../server/handlers');
+
+module.exports = getOnly(health);

@@ -2,12 +2,6 @@
   "buildCommand": "cd rostats && npm install && npm run build",
   "outputDirectory": "rostats/dist",
   "rewrites": [
-    { "source": "/api/history/earthquakes", "destination": "/api/history/earthquakes" },
-    { "source": "/api/history/aqi",         "destination": "/api/history/aqi" },
-    { "source": "/api/earthquakes",          "destination": "/api/earthquakes" },
-    { "source": "/api/aqi",                  "destination": "/api/aqi" },
-    { "source": "/api/weather",              "destination": "/api/weather" },
-    { "source": "/api/health",               "destination": "/api/health" },
-    { "source": "/((?!api/).*)",             "destination": "/" }
+    { "source": "/((?!api/).*)", "destination": "/" }
   ]
 }
