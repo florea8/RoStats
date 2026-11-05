@@ -1,5 +1,6 @@
 import { useRef, useEffect } from 'react'
-import { aqiColor, aqiHex, aqiTag, magColor } from '../utils/colors'
+import { PALETTE, withAlpha, aqiColor, aqiTag, magColor } from '../utils/colors'
+import { CITIES } from '../data/cities'
 import { timeAgo } from '../utils/time'
 import SourceBadge from './SourceBadge'
 import SectionIcon from './SectionIcon'
@@ -81,17 +82,7 @@ function wxCode(desc) {
   return 'VAR'
 }
 
-const TRAFFIC_COLOR = { FREE: '#1de9a0', SLOW: '#fbbf24', HEAVY: '#f87171' }
-
-const CITIES = ['bucuresti', 'cluj', 'timisoara', 'iasi', 'constanta', 'brasov']
-const CITY_LABELS = {
-  bucuresti: 'BUCUREȘTI',
-  cluj:      'CLUJ-NAPOCA',
-  timisoara: 'TIMIȘOARA',
-  iasi:      'IAȘI',
-  constanta: 'CONSTANȚA',
-  brasov:    'BRAȘOV',
-}
+const TRAFFIC_COLOR = { FREE: PALETTE.green, SLOW: PALETTE.amber, HEAVY: PALETTE.red }
 
 /* ══ SECTION: Seismic ══ */
 function SeismicSection({ earthquakes }) {
@@ -101,7 +92,7 @@ function SeismicSection({ earthquakes }) {
 
   useEffect(() => {
     if (!quakes) return
-    drawSparkline(canvasRef.current, dailyCounts(quakes), '#f87171', 'rgba(248,113,113,0.12)')
+    drawSparkline(canvasRef.current, dailyCounts(quakes), PALETTE.red, withAlpha(PALETTE.red, 0.12))
   }, [quakes])
 
   return (
@@ -162,7 +153,7 @@ function AqiSection({ aqi }) {
 
   useEffect(() => {
     if (!hasTrend) return
-    drawSparkline(canvasRef.current, aqiHistory, '#1de9a0', 'rgba(29,233,160,0.11)')
+    drawSparkline(canvasRef.current, aqiHistory, PALETTE.green, withAlpha(PALETTE.green, 0.11))
   }, [aqiHistory, hasTrend])
 
   return (
@@ -179,16 +170,15 @@ function AqiSection({ aqi }) {
       {isLoading && <div className="loading"><div className="spin" />Se încarcă datele AQI…</div>}
       {isError && <div className="loading" style={{ color: 'var(--red)' }}>Eroare conexiune AQI</div>}
 
-      {CITIES.map(id => {
+      {CITIES.map(({ id, label }) => {
         const v = aqiData?.[id]
-        if (!v) return null
+        if (v == null) return null
         const pct = Math.min(100, (v / 150) * 100).toFixed(0)
         const color = aqiColor(v)
-        const hex   = aqiHex(v)
         return (
           <div className="aqiRow" key={id}>
-            <div className="aqiDot" style={{ background: hex, boxShadow: `0 0 8px ${hex}66` }} />
-            <div className="aqiCity">{CITY_LABELS[id]}</div>
+            <div className="aqiDot" style={{ background: color, boxShadow: `0 0 8px ${color}66` }} />
+            <div className="aqiCity">{label}</div>
             <div className="aqiBarWrap">
               <div className="aqiBarFill" style={{ width: `${pct}%`, background: color }} />
             </div>
@@ -234,11 +224,11 @@ function WeatherSection({ weather }) {
       {isError && <div className="loading" style={{ color: 'var(--red)' }}>Eroare conexiune meteo</div>}
 
       <div className="wxGrid">
-        {CITIES.map(id => {
+        {CITIES.map(({ id, label }) => {
           const w = wxData?.[id]
           return (
             <div className="wxCard" key={id}>
-              <div className="wxCity">{CITY_LABELS[id]}</div>
+              <div className="wxCity">{label}</div>
               <div className="wxTempRow">
                 <span className="wxCode">{wxCode(w?.description)}</span>
                 <span className="wxTemp">{w ? `${w.temp}°` : '—'}</span>
@@ -284,7 +274,7 @@ function TrafficSection({ traffic }) {
 
       {trafficData?.map((r, i) => {
         const statusKey = r.status.charAt(0).toUpperCase() + r.status.slice(1).toLowerCase()
-        const dot = TRAFFIC_COLOR[r.status] ?? 'var(--txt3)'
+        const dot = TRAFFIC_COLOR[r.status] ?? PALETTE.muted
         return (
           <div className="trRow" key={i}>
             <div className="trDot" style={{ background: dot, boxShadow: `0 0 6px ${dot}88` }} />

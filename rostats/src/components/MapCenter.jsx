@@ -2,24 +2,24 @@ import { useState } from 'react'
 import { MapContainer, TileLayer, CircleMarker, Marker, Popup, useMapEvents } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { magHex, magColor, aqiHex, aqiColor, aqiTag } from '../utils/colors'
+import {
+  PALETTE, MAG_LEVELS, AQI_LEVELS, TEMP_LEVELS,
+  magColor, aqiColor, aqiTag, tempColor,
+} from '../utils/colors'
+import { CITIES } from '../data/cities'
 import { timeAgo } from '../utils/time'
 import '../styles/MapCenter.css'
 
-const CITIES = [
-  { name: 'București',   lat: 44.4268, lng: 26.1025, id: 'bucuresti' },
-  { name: 'Cluj-Napoca', lat: 46.7712, lng: 23.6236, id: 'cluj' },
-  { name: 'Timișoara',   lat: 45.7489, lng: 21.2087, id: 'timisoara' },
-  { name: 'Iași',        lat: 47.1585, lng: 27.6014, id: 'iasi' },
-  { name: 'Constanța',   lat: 44.1733, lng: 28.6383, id: 'constanta' },
-  { name: 'Brașov',      lat: 45.6427, lng: 25.5887, id: 'brasov' },
-  { name: 'Craiova',     lat: 44.3302, lng: 23.7949, id: 'craiova' },
-  { name: 'Galați',      lat: 45.4353, lng: 28.0078, id: 'galati' },
-]
-
-const PANEL_CITIES = ['bucuresti', 'cluj', 'timisoara', 'iasi', 'constanta', 'brasov']
-const CITY_SHORT = { bucuresti: 'BUC', cluj: 'CLJ', timisoara: 'TIM', iasi: 'IAS', constanta: 'CTN', brasov: 'BRV' }
-const CITY_FULL  = { bucuresti: 'BUCUREȘTI', cluj: 'CLUJ', timisoara: 'TIMIȘOARA', iasi: 'IAȘI', constanta: 'CONSTANȚA', brasov: 'BRAȘOV' }
+function Legend({ title, levels }) {
+  return (
+    <div className="legSection">
+      <div className="legTitle">{title}</div>
+      {levels.map(l => (
+        <div className="leg" key={l.label}><span className="ldot" style={{ background: l.color }} />{l.label}</div>
+      ))}
+    </div>
+  )
+}
 
 function mkIcon(color) {
   return L.divIcon({
@@ -81,7 +81,7 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
                 key={i}
                 center={[q.geometry.coordinates[1], q.geometry.coordinates[0]]}
                 radius={r}
-                pathOptions={{ color: magHex(mag), fillColor: magHex(mag), fillOpacity: 0.85, weight: 1.5 }}
+                pathOptions={{ color: magColor(mag), fillColor: magColor(mag), fillOpacity: 0.85, weight: 1.5 }}
               >
                 <Popup>
                   <div className="popup-head">CUTREMUR M{mag.toFixed(1)}</div>
@@ -96,11 +96,11 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
           {/* ── AQI markers ── */}
           {activeSection === 'aqi' && CITIES.map(c => {
             const v = aqiData?.[c.id]
-            const color = v ? aqiHex(v) : '#3b82f6'
+            const color = v != null ? aqiColor(v) : PALETTE.muted
             return (
               <Marker key={c.id} position={[c.lat, c.lng]} icon={mkIcon(color)}>
                 <Popup>
-                  <div className="popup-head">{c.name.toUpperCase()}</div>
+                  <div className="popup-head">{c.label}</div>
                   <div className="popup-row"><span>AQI</span><span>{v ?? '—'}</span></div>
                   <div className="popup-row"><span>CALITATE</span><span>{v ? aqiTag(v) : '—'}</span></div>
                 </Popup>
@@ -112,11 +112,11 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
           {activeSection === 'weather' && CITIES.map(c => {
             const w = wxData?.[c.id]
             const t = w?.temp
-            const color = t == null ? '#3b82f6' : t < 0 ? '#93c5fd' : t < 10 ? '#60a5fa' : t < 20 ? '#10b981' : t < 30 ? '#f59e0b' : '#ef4444'
+            const color = t != null ? tempColor(t) : PALETTE.muted
             return (
               <Marker key={c.id} position={[c.lat, c.lng]} icon={mkIcon(color)}>
                 <Popup>
-                  <div className="popup-head">{c.name.toUpperCase()}</div>
+                  <div className="popup-head">{c.label}</div>
                   <div className="popup-row"><span>TEMP</span><span>{t != null ? `${t}°C` : '—'}</span></div>
                   <div className="popup-row"><span>VREME</span><span>{w?.description ?? '—'}</span></div>
                   <div className="popup-row"><span>UMIDITATE</span><span>{w?.humidity != null ? `${w.humidity}%` : '—'}</span></div>
@@ -131,30 +131,9 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
         <div className="mapChip mapChipCoords">{coords}</div>
 
         <div className="mapLegend">
-          {activeSection === 'seismic' && (
-            <div className="legSection">
-              <div className="legTitle">MAGNITUDINE</div>
-              {[['M ≥ 4', '#ef4444'], ['M 3–4', '#f59e0b'], ['M < 3', '#10b981']].map(([l, c]) => (
-                <div className="leg" key={l}><span className="ldot" style={{ background: c }} />{l}</div>
-              ))}
-            </div>
-          )}
-          {activeSection === 'aqi' && (
-            <div className="legSection">
-              <div className="legTitle">AQI ORAȘ</div>
-              {[['Bun (≤50)', '#10b981'], ['Moderat (≤100)', '#f59e0b'], ['Ridicat (>100)', '#ef4444']].map(([l, c]) => (
-                <div className="leg" key={l}><span className="ldot" style={{ background: c }} />{l}</div>
-              ))}
-            </div>
-          )}
-          {activeSection === 'weather' && (
-            <div className="legSection">
-              <div className="legTitle">TEMPERATURĂ</div>
-              {[['≥ 30°C', '#ef4444'], ['20–30°C', '#f59e0b'], ['10–20°C', '#10b981'], ['< 10°C', '#60a5fa']].map(([l, c]) => (
-                <div className="leg" key={l}><span className="ldot" style={{ background: c }} />{l}</div>
-              ))}
-            </div>
-          )}
+          {activeSection === 'seismic' && <Legend title="MAGNITUDINE" levels={MAG_LEVELS} />}
+          {activeSection === 'aqi'     && <Legend title="AQI ORAȘ"    levels={AQI_LEVELS} />}
+          {activeSection === 'weather' && <Legend title="TEMPERATURĂ" levels={TEMP_LEVELS} />}
         </div>
       </div>
 
@@ -184,7 +163,7 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
           </div>
           {latestQ && (
             <div className="mdpLatestQuake">
-              <span className="mdpLqMag" style={{ color: magHex(parseFloat(latestQ.properties.mag)) }}>
+              <span className="mdpLqMag" style={{ color: magColor(parseFloat(latestQ.properties.mag)) }}>
                 M{parseFloat(latestQ.properties.mag).toFixed(1)}
               </span>
               <span className="mdpLqLoc">
@@ -201,14 +180,14 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
         <div className="mdpCol">
           <div className="mdpColHead">CALITATEA AERULUI · AQI</div>
           <div className="mdpAqiList">
-            {PANEL_CITIES.map(id => {
-              const v = aqiData?.[id]
-              if (!v) return null
+            {CITIES.map(c => {
+              const v = aqiData?.[c.id]
+              if (v == null) return null
               const color = aqiColor(v)
               const pct   = Math.min(100, (v / 150) * 100)
               return (
-                <div className="mdpAqiRow" key={id}>
-                  <span className="mdpAqiCity">{CITY_SHORT[id]}</span>
+                <div className="mdpAqiRow" key={c.id}>
+                  <span className="mdpAqiCity">{c.short}</span>
                   <div className="mdpAqiBarWrap">
                     <div className="mdpAqiBarFill" style={{ width: `${pct}%`, background: color }} />
                   </div>
@@ -225,14 +204,14 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
         <div className="mdpCol">
           <div className="mdpColHead">TEMPERATURI · °C</div>
           <div className="mdpWxList">
-            {PANEL_CITIES.map(id => {
-              const w = wxData?.[id]
+            {CITIES.map(c => {
+              const w = wxData?.[c.id]
               return (
-                <div className="mdpWxRow" key={id}>
-                  <span className="mdpWxCity">{CITY_FULL[id]}</span>
+                <div className="mdpWxRow" key={c.id}>
+                  <span className="mdpWxCity">{c.label}</span>
                   <span className="mdpWxDesc">{w?.description?.substring(0, 11) ?? '—'}</span>
                   <span className="mdpWxTemp" style={{
-                    color: w ? (w.temp > 25 ? 'var(--amber)' : w.temp < 5 ? 'var(--blue)' : 'var(--teal)') : 'var(--txt4)',
+                    color: w ? tempColor(w.temp) : 'var(--txt4)',
                   }}>{w ? `${w.temp}°` : '—'}</span>
                 </div>
               )

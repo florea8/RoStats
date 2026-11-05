@@ -21,6 +21,7 @@
   --blue:        #4facfe;
   --blue-pale:   rgba(79, 172, 254, 0.15);
   --blue-glow:   rgba(79, 172, 254, 0.32);
+  --sky:         #93c5fd;
 
   /* ── Teal ── */
   --teal:        #00f0c8;
@@ -41,12 +42,6 @@
   /* ── Violet / secondary ── */
   --violet:      #c4b5fd;
   --violet-pale: rgba(196, 181, 253, 0.14);
-
-  /* ── Legacy compat ── */
-  --a:    #1de9a0;
-  --a2:   #00f0c8;
-  --warn: #fbbf24;
-  --cyan: #00f0c8;
 
   /* ── Text ── */
   --txt:   #e8f2ff;

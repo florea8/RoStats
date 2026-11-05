@@ -1,12 +1,13 @@
 import SectionIcon from './SectionIcon'
+import { PALETTE } from '../utils/colors'
 import '../styles/LeftNav.css'
 
 const NAV_ITEMS = [
-  { id: 'seismic',    label: 'Cutremure',        desc: 'Activitate seismică', accent: '#f87171' },
-  { id: 'aqi',        label: 'Calitatea Aerului', desc: 'Indice AQI · stații', accent: '#1de9a0' },
-  { id: 'weather',    label: 'Vreme',             desc: 'Prognoză meteo',      accent: '#4facfe' },
-  { id: 'traffic',    label: 'Trafic',            desc: 'Drumuri principale',  accent: '#fbbf24' },
-  { id: 'indicators', label: 'Indicatori',        desc: 'Date naționale',      accent: '#c4b5fd' },
+  { id: 'seismic',    label: 'Cutremure',        desc: 'Activitate seismică', accent: PALETTE.red },
+  { id: 'aqi',        label: 'Calitatea Aerului', desc: 'Indice AQI · stații', accent: PALETTE.green },
+  { id: 'weather',    label: 'Vreme',             desc: 'Prognoză meteo',      accent: PALETTE.blue },
+  { id: 'traffic',    label: 'Trafic',            desc: 'Drumuri principale',  accent: PALETTE.amber },
+  { id: 'indicators', label: 'Indicatori',        desc: 'Date naționale',      accent: PALETTE.violet },
 ]
 
 export default function LeftNav({ active, onSelect }) {

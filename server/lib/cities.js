@@ -1,13 +1,5 @@
-// Single source of truth for the cities RoStats tracks.
-// owmId = OpenWeatherMap city id.
-const CITIES = [
-  { id: 'bucuresti', name: 'București',   lat: 44.4268, lng: 26.1025, owmId: 683506 },
-  { id: 'cluj',      name: 'Cluj-Napoca', lat: 46.7712, lng: 23.6236, owmId: 681290 },
-  { id: 'timisoara', name: 'Timișoara',   lat: 45.7489, lng: 21.2087, owmId: 665087 },
-  { id: 'iasi',      name: 'Iași',        lat: 47.1585, lng: 27.6014, owmId: 675466 },
-  { id: 'constanta', name: 'Constanța',   lat: 44.1733, lng: 28.6383, owmId: 681964 },
-  { id: 'brasov',    name: 'Brașov',      lat: 45.6427, lng: 25.5887, owmId: 684082 },
-];
+// The city list lives in shared/cities.json and is used by both the API and the frontend.
+const CITIES = require('../../shared/cities.json');
 
 const CITY_IDS = CITIES.map(c => c.id);
 const CITY_BY_ID = Object.fromEntries(CITIES.map(c => [c.id, c]));

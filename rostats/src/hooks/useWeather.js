@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { getJson } from '../utils/api'
+import { CITY_IDS as CITIES } from '../data/cities'
 
-const CITIES = ['bucuresti', 'cluj', 'timisoara', 'iasi', 'constanta', 'brasov']
 
 // The API falls back to demo values itself (tagged source: 'demo'),
 // so a failed request here means the backend is unreachable.
