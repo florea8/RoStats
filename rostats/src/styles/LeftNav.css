@@ -162,27 +162,25 @@
   text-transform: uppercase;
 }
 
+/* Overall data-source state; the dot takes the text color */
+.navStatus--demo    { color: var(--amber); }
+.navStatus--error   { color: var(--red); }
+.navStatus--loading { color: var(--txt3); }
+
 .navStatusDot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 8px var(--green);
+  background: currentColor;
   flex-shrink: 0;
-  animation: pulse-green 2.5s ease-in-out infinite;
+}
+
+.navStatus--live .navStatusDot {
+  animation: pulse-green 2s ease infinite;
 }
 
 .navVersion {
   font-size: 9px;
   color: var(--txt4);
   letter-spacing: 0.3px;
-}
-
-.navStatusDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--green);
-  flex-shrink: 0;
-  animation: pulse-green 2s ease infinite;
 }

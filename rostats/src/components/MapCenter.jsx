@@ -84,10 +84,10 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
                 pathOptions={{ color: magColor(mag), fillColor: magColor(mag), fillOpacity: 0.85, weight: 1.5 }}
               >
                 <Popup>
-                  <div className="popup-head">CUTREMUR M{mag.toFixed(1)}</div>
-                  <div className="popup-row"><span>LOCAȚIE</span><span>{loc}</span></div>
-                  <div className="popup-row"><span>ADÂNCIME</span><span>{dep} km</span></div>
-                  <div className="popup-row"><span>TIMP</span><span>{timeAgo(p.time)}</span></div>
+                  <div className="popup-head">EARTHQUAKE M{mag.toFixed(1)}</div>
+                  <div className="popup-row"><span>LOCATION</span><span>{loc}</span></div>
+                  <div className="popup-row"><span>DEPTH</span><span>{dep} km</span></div>
+                  <div className="popup-row"><span>TIME</span><span>{timeAgo(p.time)}</span></div>
                 </Popup>
               </CircleMarker>
             )
@@ -102,7 +102,7 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
                 <Popup>
                   <div className="popup-head">{c.label}</div>
                   <div className="popup-row"><span>AQI</span><span>{v ?? '—'}</span></div>
-                  <div className="popup-row"><span>CALITATE</span><span>{v ? aqiTag(v) : '—'}</span></div>
+                  <div className="popup-row"><span>QUALITY</span><span>{v ? aqiTag(v) : '—'}</span></div>
                 </Popup>
               </Marker>
             )
@@ -118,22 +118,22 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
                 <Popup>
                   <div className="popup-head">{c.label}</div>
                   <div className="popup-row"><span>TEMP</span><span>{t != null ? `${t}°C` : '—'}</span></div>
-                  <div className="popup-row"><span>VREME</span><span>{w?.description ?? '—'}</span></div>
-                  <div className="popup-row"><span>UMIDITATE</span><span>{w?.humidity != null ? `${w.humidity}%` : '—'}</span></div>
-                  <div className="popup-row"><span>VÂNT</span><span>{w?.wind != null ? `${w.wind} m/s` : '—'}</span></div>
+                  <div className="popup-row"><span>WEATHER</span><span>{w?.description ?? '—'}</span></div>
+                  <div className="popup-row"><span>HUMIDITY</span><span>{w?.humidity != null ? `${w.humidity}%` : '—'}</span></div>
+                  <div className="popup-row"><span>WIND</span><span>{w?.wind != null ? `${w.wind} m/s` : '—'}</span></div>
                 </Popup>
               </Marker>
             )
           })}
         </MapContainer>
 
-        <div className="mapChip mapChipTitle">HARTA INTERACTIVĂ · ROMÂNIA</div>
+        <div className="mapChip mapChipTitle">INTERACTIVE MAP · ROMANIA</div>
         <div className="mapChip mapChipCoords">{coords}</div>
 
         <div className="mapLegend">
-          {activeSection === 'seismic' && <Legend title="MAGNITUDINE" levels={MAG_LEVELS} />}
-          {activeSection === 'aqi'     && <Legend title="AQI ORAȘ"    levels={AQI_LEVELS} />}
-          {activeSection === 'weather' && <Legend title="TEMPERATURĂ" levels={TEMP_LEVELS} />}
+          {activeSection === 'seismic' && <Legend title="MAGNITUDE"   levels={MAG_LEVELS} />}
+          {activeSection === 'aqi'     && <Legend title="CITY AQI"    levels={AQI_LEVELS} />}
+          {activeSection === 'weather' && <Legend title="TEMPERATURE" levels={TEMP_LEVELS} />}
         </div>
       </div>
 
@@ -142,23 +142,23 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
 
         {/* Col 1 — Seismic */}
         <div className="mdpCol">
-          <div className="mdpColHead">ACTIVITATE SEISMICĂ · 24H</div>
+          <div className="mdpColHead">SEISMIC ACTIVITY · 24H</div>
           <div className="mdpSeismicStats">
             <div className="mdpStat">
               <div className="mdpStatVal" style={{
                 color: last24h.length > 10 ? 'var(--red)' : last24h.length > 5 ? 'var(--amber)' : 'var(--green)',
               }}>{last24h.length}</div>
-              <div className="mdpStatLabel">EVENIMENTE</div>
+              <div className="mdpStatLabel">EVENTS</div>
             </div>
             <div className="mdpStat">
               <div className="mdpStatVal" style={{
                 color: maxMag24h ? magColor(maxMag24h) : 'var(--txt4)',
               }}>{maxMag24h ? `M ${maxMag24h.toFixed(1)}` : '—'}</div>
-              <div className="mdpStatLabel">MAG MAX</div>
+              <div className="mdpStatLabel">MAX MAG</div>
             </div>
             <div className="mdpStat">
               <div className="mdpStatVal" style={{ color: 'var(--txt2)' }}>{quakes?.length ?? '—'}</div>
-              <div className="mdpStatLabel">TOTAL 30Z</div>
+              <div className="mdpStatLabel">TOTAL 30D</div>
             </div>
           </div>
           {latestQ && (
@@ -178,7 +178,7 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
 
         {/* Col 2 — AQI */}
         <div className="mdpCol">
-          <div className="mdpColHead">CALITATEA AERULUI · AQI</div>
+          <div className="mdpColHead">AIR QUALITY · AQI</div>
           <div className="mdpAqiList">
             {CITIES.map(c => {
               const v = aqiData?.[c.id]
@@ -202,7 +202,7 @@ export default function MapCenter({ earthquakes, aqi, weather, activeSection }) 
 
         {/* Col 3 — Weather */}
         <div className="mdpCol">
-          <div className="mdpColHead">TEMPERATURI · °C</div>
+          <div className="mdpColHead">TEMPERATURES · °C</div>
           <div className="mdpWxList">
             {CITIES.map(c => {
               const w = wxData?.[c.id]

@@ -319,7 +319,7 @@
 .trFree {
   background: var(--green-pale);
   color: var(--green);
-  border: 1px solid rgba(16, 185, 129, 0.24);
+  border: 1px solid rgba(29, 233, 160, 0.24);
 }
 
 .trSlow {

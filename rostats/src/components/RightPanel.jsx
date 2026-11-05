@@ -100,15 +100,15 @@ function SeismicSection({ earthquakes }) {
       <div className="detailHeader">
         <span className="detailIcon"><SectionIcon id="seismic" /></span>
         <div>
-          <div className="detailTitle">Activitate Seismică</div>
-          <div className="detailSub">Zona România · ultimele 30 de zile</div>
+          <div className="detailTitle">Seismic Activity</div>
+          <div className="detailSub">Romania region · last 30 days</div>
         </div>
         <DetailMeta source={isError ? 'error' : quakes && 'live'} href="https://www.emsc-csem.org" label="EMSC" />
       </div>
 
-      {isLoading && <div className="loading"><div className="spin" />Se încarcă datele seismice…</div>}
-      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Eroare conexiune EMSC</div>}
-      {quakes?.length === 0 && <div className="loading">Niciun cutremur înregistrat în ultimele 30 de zile.</div>}
+      {isLoading && <div className="loading"><div className="spin" />Loading seismic data…</div>}
+      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Could not reach EMSC</div>}
+      {quakes?.length === 0 && <div className="loading">No earthquakes recorded in the last 30 days.</div>}
 
       <div className="eqList">
         {quakes?.slice(0, 10).map((q, i) => {
@@ -131,13 +131,13 @@ function SeismicSection({ earthquakes }) {
 
       <div className="panel">
         <div className="panelHead">
-          <span className="phTitle">Frecvență seismică · 7 zile</span>
+          <span className="phTitle">Seismic frequency · 7 days</span>
           <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--red)', letterSpacing: 1 }}>
-            {counts.length ? Math.max(...counts) : 0}/ZI MAX
+            {counts.length ? Math.max(...counts) : 0}/DAY MAX
           </span>
         </div>
         <div className="sparkWrap">
-          <div className="sparkLabel"><span>frecvență zilnică</span></div>
+          <div className="sparkLabel"><span>events per day</span></div>
           <canvas ref={canvasRef} height={54} style={{ width: '100%', display: 'block' }} />
         </div>
       </div>
@@ -161,14 +161,14 @@ function AqiSection({ aqi }) {
       <div className="detailHeader">
         <span className="detailIcon"><SectionIcon id="aqi" /></span>
         <div>
-          <div className="detailTitle">Calitatea Aerului</div>
-          <div className="detailSub">Indice US AQI · model european CAMS</div>
+          <div className="detailTitle">Air Quality</div>
+          <div className="detailSub">US AQI index · CAMS European model</div>
         </div>
         <DetailMeta source={isError ? 'error' : source} href="https://open-meteo.com/en/docs/air-quality-api" label="Open-Meteo" />
       </div>
 
-      {isLoading && <div className="loading"><div className="spin" />Se încarcă datele AQI…</div>}
-      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Eroare conexiune AQI</div>}
+      {isLoading && <div className="loading"><div className="spin" />Loading air quality data…</div>}
+      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Could not reach the air quality API</div>}
 
       {CITIES.map(({ id, label }) => {
         const v = aqiData?.[id]
@@ -190,16 +190,16 @@ function AqiSection({ aqi }) {
 
       <div className="panel">
         <div className="panelHead">
-          <span className="phTitle">AQI București · tendință 24h</span>
+          <span className="phTitle">AQI Bucharest · 24h trend</span>
           <span style={{ color: 'var(--green)', fontFamily: 'var(--mono)', fontSize: 9 }}>
-            {aqiData?.bucuresti != null ? aqiData.bucuresti + ' ACUM' : ''}
+            {aqiData?.bucuresti != null ? aqiData.bucuresti + ' NOW' : ''}
           </span>
         </div>
         <div className="sparkWrap">
-          <div className="sparkLabel"><span>medie orară · PostgreSQL</span></div>
+          <div className="sparkLabel"><span>hourly average · PostgreSQL</span></div>
           {hasTrend
             ? <canvas ref={canvasRef} height={54} style={{ width: '100%', display: 'block' }} />
-            : <div className="sparkEmpty">Istoricul se acumulează — revino peste câteva ore.</div>}
+            : <div className="sparkEmpty">History is still building up — check back in a few hours.</div>}
         </div>
       </div>
     </>
@@ -214,14 +214,14 @@ function WeatherSection({ weather }) {
       <div className="detailHeader">
         <span className="detailIcon"><SectionIcon id="weather" /></span>
         <div>
-          <div className="detailTitle">Vreme</div>
-          <div className="detailSub">Condiții actuale · orașe principale</div>
+          <div className="detailTitle">Weather</div>
+          <div className="detailSub">Current conditions · major cities</div>
         </div>
         <DetailMeta source={isError ? 'error' : source} href="https://openweathermap.org" label="OWM" />
       </div>
 
-      {isLoading && <div className="loading"><div className="spin" />Se încarcă prognoza…</div>}
-      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Eroare conexiune meteo</div>}
+      {isLoading && <div className="loading"><div className="spin" />Loading weather…</div>}
+      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Could not reach the weather API</div>}
 
       <div className="wxGrid">
         {CITIES.map(({ id, label }) => {
@@ -241,9 +241,9 @@ function WeatherSection({ weather }) {
       </div>
 
       <div className="wxLegend">
-        <div className="wxLegendItem"><span className="wxLegTag">HUM</span> Umiditate</div>
-        <div className="wxLegendItem"><span className="wxLegTag">WIND</span> Vânt (m/s)</div>
-        <div className="wxLegendItem"><span className="wxLegTag">°C</span> Temperatură</div>
+        <div className="wxLegendItem"><span className="wxLegTag">HUM</span> Humidity</div>
+        <div className="wxLegendItem"><span className="wxLegTag">WIND</span> Wind (m/s)</div>
+        <div className="wxLegendItem"><span className="wxLegTag">°C</span> Temperature</div>
       </div>
     </>
   )
@@ -257,14 +257,14 @@ function TrafficSection({ traffic }) {
       <div className="detailHeader">
         <span className="detailIcon"><SectionIcon id="traffic" /></span>
         <div>
-          <div className="detailTitle">Trafic</div>
-          <div className="detailSub">Drumuri principale · estimat</div>
+          <div className="detailTitle">Traffic</div>
+          <div className="detailSub">Main roads · estimated</div>
         </div>
         <DetailMeta source={source} />
       </div>
 
       <div className="trLegend">
-        {[['FREE', 'Fluent'], ['SLOW', 'Moderat'], ['HEAVY', 'Aglomerat']].map(([k, l]) => (
+        {[['FREE', 'Free flow'], ['SLOW', 'Moderate'], ['HEAVY', 'Heavy']].map(([k, l]) => (
           <div className="trLegItem" key={k}>
             <div className="trDot" style={{ background: TRAFFIC_COLOR[k], boxShadow: `0 0 6px ${TRAFFIC_COLOR[k]}88` }} />
             {l}
@@ -285,8 +285,8 @@ function TrafficSection({ traffic }) {
       })}
 
       <div className="trNote">
-        Date simulate: starea fiecărui drum este estimată după ora din zi (ore de vârf,
-        trafic normal, noapte). Nu provin dintr-o sursă de trafic live.
+        Simulated data: each road state is estimated from the time of day (rush hour,
+        normal traffic, night). It does not come from a live traffic source.
       </div>
     </>
   )
@@ -295,12 +295,12 @@ function TrafficSection({ traffic }) {
 /* ══ SECTION: National Indicators ══ */
 function IndicatorsSection() {
   const stats = [
-    { label: 'Șomaj', value: '5.4', unit: '%', trend: '▲ 0.2 vs T3', trendDir: 'up-bad' },
-    { label: 'Inflație', value: '5.1', unit: '%', trend: '▼ 1.3 vs T3', trendDir: 'down-good' },
-    { label: 'Salariu Net', value: '5.18', unit: 'k', trend: '▲ 8.2% y/y', trendDir: 'up-good' },
-    { label: 'PIB/capita', value: '14.8', unit: 'k€', trend: '▲ 3.1% vs 2022', trendDir: 'up-good' },
-    { label: 'Prod. Industrială', value: '+2.1', unit: '%', trend: '▲ 0.4 vs T3', trendDir: 'up-good' },
-    { label: 'Deficit Bugetar', value: '6.2', unit: '%', trend: '▲ 0.8 vs T3', trendDir: 'up-bad' },
+    { label: 'Unemployment', value: '5.4', unit: '%', trend: '▲ 0.2 vs Q3', trendDir: 'up-bad' },
+    { label: 'Inflation', value: '5.1', unit: '%', trend: '▼ 1.3 vs Q3', trendDir: 'down-good' },
+    { label: 'Net Salary', value: '5.18', unit: 'k RON', trend: '▲ 8.2% y/y', trendDir: 'up-good' },
+    { label: 'GDP per Capita', value: '14.8', unit: 'k€', trend: '▲ 3.1% vs 2022', trendDir: 'up-good' },
+    { label: 'Industrial Output', value: '+2.1', unit: '%', trend: '▲ 0.4 vs Q3', trendDir: 'up-good' },
+    { label: 'Budget Deficit', value: '6.2', unit: '%', trend: '▲ 0.8 vs Q3', trendDir: 'up-bad' },
   ]
 
   return (
@@ -308,8 +308,8 @@ function IndicatorsSection() {
       <div className="detailHeader">
         <span className="detailIcon"><SectionIcon id="indicators" /></span>
         <div>
-          <div className="detailTitle">Indicatori Naționali</div>
-          <div className="detailSub">Date economice · INS România</div>
+          <div className="detailTitle">National Indicators</div>
+          <div className="detailSub">Economic data · INS Romania</div>
         </div>
         <DetailMeta source="static" href="https://insse.ro" label="INS" />
       </div>
@@ -332,7 +332,7 @@ function IndicatorsSection() {
       </div>
 
       <div className="trNote">
-        Valori preluate manual din publicațiile INS; nu se actualizează automat.
+        Values entered manually from INS publications; they are not updated automatically.
       </div>
     </>
   )

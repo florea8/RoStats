@@ -26,10 +26,10 @@ export const MAG_LEVELS = [
 ]
 
 export const AQI_LEVELS = [
-  { min: 151,       color: PALETTE.violet, tag: 'PERICOL', label: 'Periculos (>150)' },
-  { min: 101,       color: PALETTE.red,   tag: 'RIDICAT', label: 'Ridicat (101–150)' },
-  { min: 51,        color: PALETTE.amber, tag: 'MODERAT', label: 'Moderat (51–100)' },
-  { min: -Infinity, color: PALETTE.green, tag: 'BUN',     label: 'Bun (≤50)' },
+  { min: 151,       color: PALETTE.violet, tag: 'UNHEALTHY', label: 'Unhealthy (>150)' },
+  { min: 101,       color: PALETTE.red,    tag: 'POOR',      label: 'Poor (101–150)' },
+  { min: 51,        color: PALETTE.amber,  tag: 'MODERATE',  label: 'Moderate (51–100)' },
+  { min: -Infinity, color: PALETTE.green,  tag: 'GOOD',      label: 'Good (≤50)' },
 ]
 
 export const TEMP_LEVELS = [

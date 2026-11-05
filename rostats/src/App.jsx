@@ -40,7 +40,7 @@ export default function App() {
       />
       <MetricsStrip earthquakes={earthquakes} weather={weather} aqi={aqi} />
       <div className="main-layout">
-        <LeftNav active={activeSection} onSelect={setActiveSection} />
+        <LeftNav active={activeSection} onSelect={setActiveSection} status={status} />
         <MapCenter earthquakes={earthquakes} aqi={aqi} weather={weather} activeSection={activeSection} />
         <RightPanel
           activeSection={activeSection}

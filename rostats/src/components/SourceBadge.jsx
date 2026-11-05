@@ -1,11 +1,11 @@
 import '../styles/SourceBadge.css'
 
 const LABELS = {
-  live:      { text: 'LIVE',    title: 'Date reale, actualizate automat' },
-  demo:      { text: 'DEMO',    title: 'Sursa nu este disponibilă — se afișează valori demonstrative' },
-  simulated: { text: 'SIMULAT', title: 'Valori estimate, nu provin dintr-o sursă live' },
-  static:    { text: 'STATIC',  title: 'Valori introduse manual, nu se actualizează automat' },
-  error:     { text: 'OFFLINE', title: 'Sursa nu răspunde' },
+  live:      { text: 'LIVE',    title: 'Real data, refreshed automatically' },
+  demo:      { text: 'DEMO',    title: 'Source unavailable — showing demo values' },
+  simulated: { text: 'SIMULATED', title: 'Estimated values, not from a live source' },
+  static:    { text: 'STATIC',  title: 'Entered manually, not updated automatically' },
+  error:     { text: 'OFFLINE', title: 'Source is not responding' },
 }
 
 /** Small pill that tells the viewer whether a panel shows real data. */

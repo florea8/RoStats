@@ -3,10 +3,10 @@ import { formatTime, formatUpdated } from '../utils/time'
 import '../styles/TopBar.css'
 
 const STATUS_TITLE = {
-  live:    'Sursă activă — date reale',
-  demo:    'Sursă indisponibilă — valori demo',
-  error:   'Sursă offline',
-  loading: 'Se conectează…',
+  live:    'Source online — real data',
+  demo:    'Source unavailable — demo values',
+  error:   'Source offline',
+  loading: 'Connecting…',
 }
 
 function SourceStatus({ label, status }) {
@@ -38,14 +38,14 @@ export default function TopBar({ status, updatedAt }) {
         </div>
         <div className="tbLogoText">
           <span className="tbLogo">RoStats</span>
-          <span className="tbTagline">Sistem Național de Monitorizare</span>
+          <span className="tbTagline">National Monitoring System</span>
         </div>
       </div>
       <div className="tbDiv" />
       <div className="tbOnlineIndicators">
         <SourceStatus label="SEISMIC" status={status.seismic} />
         <SourceStatus label="AQI"     status={status.aqi} />
-        <SourceStatus label="METEO"   status={status.weather} />
+        <SourceStatus label="WEATHER" status={status.weather} />
       </div>
       <div className="tbSpacer" />
       <div className="tbStatus">

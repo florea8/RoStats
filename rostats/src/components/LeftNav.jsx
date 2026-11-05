@@ -3,17 +3,35 @@ import { PALETTE } from '../utils/colors'
 import '../styles/LeftNav.css'
 
 const NAV_ITEMS = [
-  { id: 'seismic',    label: 'Cutremure',        desc: 'Activitate seismică', accent: PALETTE.red },
-  { id: 'aqi',        label: 'Calitatea Aerului', desc: 'Indice AQI · stații', accent: PALETTE.green },
-  { id: 'weather',    label: 'Vreme',             desc: 'Prognoză meteo',      accent: PALETTE.blue },
-  { id: 'traffic',    label: 'Trafic',            desc: 'Drumuri principale',  accent: PALETTE.amber },
-  { id: 'indicators', label: 'Indicatori',        desc: 'Date naționale',      accent: PALETTE.violet },
+  { id: 'seismic',    label: 'Earthquakes',      desc: 'Seismic activity', accent: PALETTE.red },
+  { id: 'aqi',        label: 'Air Quality',       desc: 'AQI index · 6 cities', accent: PALETTE.green },
+  { id: 'weather',    label: 'Weather',           desc: 'Current conditions',      accent: PALETTE.blue },
+  { id: 'traffic',    label: 'Traffic',           desc: 'Main roads',  accent: PALETTE.amber },
+  { id: 'indicators', label: 'Indicators',        desc: 'National data',      accent: PALETTE.violet },
 ]
 
-export default function LeftNav({ active, onSelect }) {
+const OVERALL_LABEL = {
+  live:    'ALL SOURCES LIVE',
+  demo:    'DEMO DATA IN USE',
+  error:   'SOURCE OFFLINE',
+  loading: 'CONNECTING…',
+}
+
+// Worst state wins: one offline source outweighs the rest being live.
+function overallStatus(status) {
+  const values = Object.values(status)
+  for (const s of ['error', 'loading', 'demo']) {
+    if (values.includes(s)) return s
+  }
+  return 'live'
+}
+
+/** status: { seismic, aqi, weather } each one of 'live' | 'demo' | 'error' | 'loading' */
+export default function LeftNav({ active, onSelect, status }) {
+  const overall = overallStatus(status)
   return (
     <nav className="leftNav boot-fade d2">
-      <div className="navHeader">SECȚIUNI</div>
+      <div className="navHeader">SECTIONS</div>
 
       {NAV_ITEMS.map(item => (
         <button
@@ -36,11 +54,11 @@ export default function LeftNav({ active, onSelect }) {
       ))}
 
       <div className="navFooter">
-        <div className="navStatus">
+        <div className={`navStatus navStatus--${overall}`}>
           <span className="navStatusDot" />
-          SISTEM ACTIV
+          {OVERALL_LABEL[overall]}
         </div>
-        <div className="navVersion">v1.0 · România</div>
+        <div className="navVersion">v1.0 · Romania</div>
       </div>
     </nav>
   )

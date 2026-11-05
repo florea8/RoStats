@@ -1,5 +1,5 @@
 [
-  { "id": "bucuresti", "name": "București",   "short": "BUC", "lat": 44.4268, "lng": 26.1025, "owmId": 683506 },
+  { "id": "bucuresti", "name": "Bucharest",   "short": "BUC", "lat": 44.4268, "lng": 26.1025, "owmId": 683506 },
   { "id": "cluj",      "name": "Cluj-Napoca", "short": "CLJ", "lat": 46.7712, "lng": 23.6236, "owmId": 681290 },
   { "id": "timisoara", "name": "Timișoara",   "short": "TIM", "lat": 45.7489, "lng": 21.2087, "owmId": 665087 },
   { "id": "iasi",      "name": "Iași",        "short": "IAS", "lat": 47.1585, "lng": 27.6014, "owmId": 675466 },
