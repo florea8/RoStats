@@ -2,4 +2,3 @@
 import cities from '@shared/cities.json'
 
 export const CITIES = cities.map(c => ({ ...c, label: c.name.toUpperCase() }))
-export const CITY_IDS = CITIES.map(c => c.id)

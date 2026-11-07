@@ -1,4 +1,4 @@
-const { CITY_BY_ID } = require('./cities');
+const { CITY_IDS, CITY_BY_ID } = require('./cities');
 
 // Used when OWM_KEY is missing or OpenWeatherMap is unreachable.
 // Responses carry source: 'demo' so the UI can label them.
@@ -11,38 +11,47 @@ const DEMO_WEATHER = {
   brasov:    { temp: 8,  feels_like: 6,  humidity: 80, description: 'fog',           wind: 3 },
 };
 
-function demo(city) {
-  return { city, ...DEMO_WEATHER[city], source: 'demo' };
-}
-
-/**
- * Current weather for one city from OpenWeatherMap.
- * Never throws: falls back to demo values tagged with source: 'demo'.
- */
-async function getWeather(city) {
-  const apiKey = process.env.OWM_KEY;
-  if (!apiKey) return demo(city);
-
+/** Current weather for one city from OpenWeatherMap, or null if it can't be fetched. */
+async function fetchCity(city, apiKey) {
   try {
     const url =
       `https://api.openweathermap.org/data/2.5/weather` +
       `?id=${CITY_BY_ID[city].owmId}&appid=${apiKey}&units=metric&lang=en`;
     const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
-    if (!res.ok) return demo(city);
+    if (!res.ok) return null;
 
     const data = await res.json();
     return {
-      city,
       temp:        Math.round(data.main.temp),
       feels_like:  Math.round(data.main.feels_like),
       humidity:    data.main.humidity,
       description: data.weather[0].description,
       wind:        Math.round(data.wind.speed),
-      source:      'live',
     };
   } catch {
-    return demo(city);
+    return null;
   }
+}
+
+/**
+ * Current weather for the given cities, fetched in parallel.
+ * Returns { data: { cluj: {...}, ... }, source: 'live' | 'demo' }.
+ * Never throws: any city that can't be fetched gets demo values and the
+ * whole response is tagged source: 'demo'.
+ */
+async function getWeather(cities = CITY_IDS) {
+  const apiKey = process.env.OWM_KEY;
+  const results = apiKey
+    ? await Promise.all(cities.map(city => fetchCity(city, apiKey)))
+    : cities.map(() => null);
+
+  const data = {};
+  let source = 'live';
+  cities.forEach((city, i) => {
+    data[city] = results[i] ?? DEMO_WEATHER[city];
+    if (!results[i]) source = 'demo';
+  });
+  return { data, source };
 }
 
 module.exports = { getWeather };

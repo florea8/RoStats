@@ -1,38 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
 import { getJson } from '../utils/api'
-import { CITY_IDS as CITIES } from '../data/cities'
 
-
-// The API falls back to demo values itself (tagged source: 'demo'),
-// so a failed request here means the backend is unreachable.
-async function fetchAllWeather() {
-  const results = await Promise.allSettled(
-    CITIES.map(city => getJson(`/api/weather?city=${city}`))
-  )
-
-  if (results.every(r => r.status === 'rejected')) {
-    throw new Error('Weather API unreachable')
-  }
-
-  const data = {}
-  results.forEach((r, i) => {
-    if (r.status === 'fulfilled') data[CITIES[i]] = r.value
-  })
-  return data
-}
-
+// One request returns every city. The API falls back to demo values itself
+// (source: 'demo'), so a failed request here means the backend is unreachable.
 export function useWeather() {
   const query = useQuery({
     queryKey: ['weather'],
-    queryFn: fetchAllWeather,
+    queryFn: () => getJson('/api/weather'),
     refetchInterval: 10 * 60 * 1000,
     staleTime: 9 * 60 * 1000,
   })
 
-  const values = Object.values(query.data ?? {})
-  const source = values.length === 0
-    ? undefined
-    : values.every(w => w.source === 'live') ? 'live' : 'demo'
-
-  return { ...query, source }
+  return {
+    ...query,
+    data: query.data?.data,
+    source: query.data?.source,
+  }
 }

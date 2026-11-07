@@ -9,7 +9,7 @@ const { getEarthquakes } = require('./lib/earthquakes');
 const { getAqiHistory, getEarthquakeHistory } = require('./lib/history');
 
 const schemas = {
-  weather:     z.object({ city: z.enum(CITY_IDS) }),
+  weather:     z.object({ city: z.enum(CITY_IDS).optional() }),
   aqiHistory:  z.object({
     city:  z.enum(CITY_IDS).default('bucuresti'),
     hours: z.coerce.number().int().min(1).max(168).default(24),
@@ -36,8 +36,11 @@ async function weather(req, res) {
       error: 'Invalid parameter. city must be one of: ' + CITY_IDS.join(', '),
     });
   }
-  cacheFor(res, 600);
-  res.json(await getWeather(parsed.data.city));
+  // Without ?city= the response covers every city in one request.
+  const { city } = parsed.data;
+  const { data, source } = await getWeather(city ? [city] : undefined);
+  cacheFor(res, source === 'live' ? 600 : 60);
+  res.json({ ok: true, data: city ? data[city] : data, source });
 }
 
 async function aqi(_req, res) {
