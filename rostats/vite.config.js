@@ -1,11 +1,17 @@
+import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 const sharedDir = fileURLToPath(new URL('../shared', import.meta.url))
+const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
 export default defineConfig({
   plugins: [react()],
+  define: {
+    // The version shown in the UI comes from package.json only
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(version),
+  },
   resolve: {
     // Data shared with the API, e.g. import cities from '@shared/cities.json'
     alias: { '@shared': sharedDir },

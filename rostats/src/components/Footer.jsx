@@ -1,3 +1,4 @@
+import { APP_VERSION } from '../data/app'
 import '../styles/Footer.css'
 
 const SOURCES = [
@@ -15,7 +16,7 @@ export default function Footer() {
       ))}
       <div className="fSpacer" />
       <div className="fTag">
-        RoStats v1.0 ·{' '}
+        RoStats {APP_VERSION} ·{' '}
         <a href="https://github.com/florea8/RoStats" target="_blank" rel="noreferrer">
           <span>github.com/florea8/RoStats</span>
         </a>

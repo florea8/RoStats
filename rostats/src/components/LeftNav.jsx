@@ -1,13 +1,14 @@
 import SectionIcon from './SectionIcon'
 import { PALETTE } from '../utils/colors'
+import { APP_VERSION } from '../data/app'
 import '../styles/LeftNav.css'
 
 const NAV_ITEMS = [
-  { id: 'seismic',    label: 'Earthquakes',      desc: 'Seismic activity', accent: PALETTE.red },
-  { id: 'aqi',        label: 'Air Quality',       desc: 'AQI index · 6 cities', accent: PALETTE.green },
-  { id: 'weather',    label: 'Weather',           desc: 'Current conditions',      accent: PALETTE.blue },
-  { id: 'traffic',    label: 'Traffic',           desc: 'Main roads',  accent: PALETTE.amber },
-  { id: 'indicators', label: 'Indicators',        desc: 'National data',      accent: PALETTE.violet },
+  { id: 'seismic',    label: 'Earthquakes', desc: 'Seismic activity',     accent: PALETTE.red },
+  { id: 'aqi',        label: 'Air Quality', desc: 'AQI index · 6 cities', accent: PALETTE.green },
+  { id: 'weather',    label: 'Weather',     desc: 'Current conditions',   accent: PALETTE.blue },
+  { id: 'traffic',    label: 'Traffic',     desc: 'Main roads',           accent: PALETTE.amber },
+  { id: 'indicators', label: 'Indicators',  desc: 'National data',        accent: PALETTE.violet },
 ]
 
 const OVERALL_LABEL = {
@@ -58,7 +59,7 @@ export default function LeftNav({ active, onSelect, status }) {
           <span className="navStatusDot" />
           {OVERALL_LABEL[overall]}
         </div>
-        <div className="navVersion">v1.0 · Romania</div>
+        <div className="navVersion">{APP_VERSION} · Romania</div>
       </div>
     </nav>
   )
