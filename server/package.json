@@ -1,16 +1,15 @@
 {
-  "name": "server",
+  "name": "rostats-server",
   "version": "1.0.0",
-  "description": "",
+  "private": true,
+  "description": "Express API for RoStats local development; shares its handlers with the Vercel functions in ../api",
   "main": "index.js",
+  "type": "commonjs",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js"
+    "start": "node index.js",
+    "lint": "eslint ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -21,6 +20,9 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.14.0",
     "nodemon": "^3.1.14"
   }
 }
