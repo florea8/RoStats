@@ -54,7 +54,7 @@ function Legend({ title, levels }) {
 
 function EarthquakeMarkers({ quakes }) {
   return quakes.slice(0, 12).map(q => {
-    const { mag, place, time } = q.properties
+    const { magnitude: mag, place, time } = q
     const color = magColor(mag)
     return (
       <CircleMarker

@@ -6,7 +6,7 @@ export default function MetricsStrip({ earthquakes, weather, aqi }) {
   const bucWeather = weather.data?.bucuresti
   const bucAqi = aqi.data?.bucuresti
 
-  const eqMag = latestEq ? parseFloat(latestEq.properties.mag).toFixed(1) : '—'
+  const eqMag = latestEq ? latestEq.magnitude.toFixed(1) : '—'
 
   return (
     <div className="metrics boot-fade d1">
@@ -22,12 +22,12 @@ export default function MetricsStrip({ earthquakes, weather, aqi }) {
 
       <div className="metric">
         <div className="mLabel">latest earthquake</div>
-        <div className="mVal c-txt" style={latestEq ? { color: magColor(latestEq.properties.mag) } : undefined}>
+        <div className="mVal c-txt" style={latestEq ? { color: magColor(latestEq.magnitude) } : undefined}>
           {latestEq ? `M ${eqMag}` : '—'}
         </div>
         <div className="mSub">
           {latestEq
-            ? (latestEq.properties.place ?? 'ROMANIA').substring(0, 22)
+            ? (latestEq.place ?? 'ROMANIA').substring(0, 22)
             : 'loading'}
         </div>
       </div>

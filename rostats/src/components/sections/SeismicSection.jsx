@@ -25,7 +25,7 @@ export default function SeismicSection({ earthquakes }) {
 
       <div className="eqList">
         {quakes?.slice(0, 10).map(q => {
-          const { mag, place, time } = q.properties
+          const { magnitude: mag, place, time } = q
           return (
             <div className="eqRow" key={q.id}>
               <div className="eqBar" style={{ background: magColor(mag) }} />

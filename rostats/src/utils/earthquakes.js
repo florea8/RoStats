@@ -1,3 +1,5 @@
+// Earthquakes come from /api/earthquakes as
+// { id, magnitude, place, depth_km, lat, lng, time } with `time` as an ISO string.
 const DAY_MS = 86400000
 
 /** Earthquake count per calendar day for the `days` days up to `now`, oldest first. */
@@ -7,7 +9,7 @@ export function dailyCounts(quakes, now, days = 7) {
     counts.set(new Date(now - i * DAY_MS).toDateString(), 0)
   }
   for (const q of quakes) {
-    const day = new Date(q.properties.time).toDateString()
+    const day = new Date(q.time).toDateString()
     if (counts.has(day)) counts.set(day, counts.get(day) + 1)
   }
   return [...counts.values()]
@@ -15,10 +17,10 @@ export function dailyCounts(quakes, now, days = 7) {
 
 /** Number of events and the strongest magnitude in the 24 hours before `now`. */
 export function summarize24h(quakes, now) {
-  const recent = quakes.filter(q => now - q.properties.time < DAY_MS)
+  const recent = quakes.filter(q => now - Date.parse(q.time) < DAY_MS)
   return {
     count:  recent.length,
-    maxMag: recent.length ? Math.max(...recent.map(q => q.properties.mag)) : null,
+    maxMag: recent.length ? Math.max(...recent.map(q => q.magnitude)) : null,
   }
 }
 

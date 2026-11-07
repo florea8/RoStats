@@ -14,20 +14,16 @@ function emscUrl() {
   return `${EMSC_BASE}&starttime=${start}`;
 }
 
+// Flattens an EMSC GeoJSON feature into the shape the API returns.
 function normalize(f) {
-  const place = f.properties.flynn_region || 'ROMANIA';
-  const time = new Date(f.properties.time);
   return {
-    id:          f.id,
-    magnitude:   f.properties.mag,
-    place,
-    depth_km:    Math.round(f.properties.depth ?? 0),
-    lat:         f.geometry.coordinates[1],
-    lng:         f.geometry.coordinates[0],
-    occurred_at: time.toISOString(),
-    // GeoJSON-style fields consumed by the frontend
-    properties:  { mag: f.properties.mag, place, time: time.getTime() },
-    geometry:    f.geometry,
+    id:        f.id,
+    magnitude: f.properties.mag,
+    place:     f.properties.flynn_region || 'ROMANIA',
+    depth_km:  Math.round(f.properties.depth ?? 0),
+    lat:       f.geometry.coordinates[1],
+    lng:       f.geometry.coordinates[0],
+    time:      new Date(f.properties.time).toISOString(),
   };
 }
 
@@ -48,7 +44,7 @@ async function saveEvents(events) {
       events.map(e => e.depth_km),
       events.map(e => e.lat),
       events.map(e => e.lng),
-      events.map(e => e.occurred_at),
+      events.map(e => e.time),
     ]
   );
 }

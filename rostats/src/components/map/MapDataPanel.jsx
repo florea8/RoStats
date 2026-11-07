@@ -36,11 +36,11 @@ function SeismicColumn({ quakes, fetchedAt }) {
       </div>
       {latest && (
         <div className="mdpLatestQuake">
-          <span className="mdpLqMag" style={{ color: magColor(latest.properties.mag) }}>
-            M{latest.properties.mag.toFixed(1)}
+          <span className="mdpLqMag" style={{ color: magColor(latest.magnitude) }}>
+            M{latest.magnitude.toFixed(1)}
           </span>
-          <span className="mdpLqLoc">{latest.properties.place?.substring(0, 24) ?? '—'}</span>
-          <span className="mdpLqTime">{timeAgo(latest.properties.time)}</span>
+          <span className="mdpLqLoc">{latest.place?.substring(0, 24) ?? '—'}</span>
+          <span className="mdpLqTime">{timeAgo(latest.time)}</span>
         </div>
       )}
     </div>
