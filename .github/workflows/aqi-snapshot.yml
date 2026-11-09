@@ -1,0 +1,25 @@
+name: Hourly AQI snapshot
+
+# The API stores an AQI reading only when /api/aqi is requested, so without
+# visitors the 24h history has gaps. Calling it once an hour keeps it complete.
+on:
+  schedule:
+    - cron: '7 * * * *'   # minute 7 of every hour (UTC)
+  workflow_dispatch:       # allows a manual run from the Actions tab
+
+permissions: {}
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Request /api/aqi
+        run: |
+          # The query string bypasses the CDN cache so the function actually runs.
+          body=$(curl --fail --silent --show-error --max-time 30 \
+            "https://ro-stats.vercel.app/api/aqi?snapshot=$(date +%s)")
+          echo "$body"
+          if ! echo "$body" | grep -q '"source":"live"'; then
+            echo "::warning::Open-Meteo was unavailable; the API served demo values and stored nothing."
+          fi
