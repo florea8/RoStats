@@ -1,6 +1,7 @@
 import SectionIcon from './SectionIcon'
 import { PALETTE } from '../utils/colors'
 import { APP_VERSION } from '../data/app'
+import { overallStatus } from '../utils/status'
 import '../styles/LeftNav.css'
 
 const NAV_ITEMS = [
@@ -16,15 +17,6 @@ const OVERALL_LABEL = {
   demo:    'DEMO DATA IN USE',
   error:   'SOURCE OFFLINE',
   loading: 'CONNECTING…',
-}
-
-// Worst state wins: one offline source outweighs the rest being live.
-function overallStatus(status) {
-  const values = Object.values(status)
-  for (const s of ['error', 'loading', 'demo']) {
-    if (values.includes(s)) return s
-  }
-  return 'live'
 }
 
 /** status: { seismic, aqi, weather } each one of 'live' | 'demo' | 'error' | 'loading' */

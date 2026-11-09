@@ -10,13 +10,7 @@ import { useEarthquakes } from './hooks/useEarthquakes'
 import { useWeather } from './hooks/useWeather'
 import { useAQI } from './hooks/useAQI'
 import { useTraffic } from './hooks/useTraffic'
-
-// Maps a React Query result to the status shown in the top bar.
-function sourceStatus(query, source) {
-  if (query.isError && !query.data) return 'error'
-  if (query.isPending) return 'loading'
-  return source ?? 'live'
-}
+import { sourceStatus } from './utils/status'
 
 export default function App() {
   const [activeSection, setActiveSection] = useState('seismic')
