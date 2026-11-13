@@ -13,6 +13,12 @@ import { timeAgo } from '../../utils/time'
 const ROMANIA_CENTER = [45.94, 24.97]
 const ROMANIA_BOUNDS = [[43.3, 19.7], [48.6, 30.3]]
 
+// Esri Dark Gray Canvas: a keyless dark basemap, with labels on a separate layer.
+const ESRI_TILES = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas'
+const BASEMAP_URL = `${ESRI_TILES}/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`
+const LABELS_URL  = `${ESRI_TILES}/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`
+const BASEMAP_ATTRIBUTION = 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
+
 const LEGENDS = {
   seismic: { title: 'MAGNITUDE',   levels: MAG_LEVELS },
   aqi:     { title: 'CITY AQI',    levels: AQI_LEVELS },
@@ -123,7 +129,8 @@ export default function MapView({ activeSection, quakes, aqiData, wxData }) {
         zoomControl={false}
         style={{ width: '100%', height: '100%' }}
       >
-        <TileLayer url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png" maxZoom={19} attribution="&copy; CartoDB" />
+        <TileLayer url={BASEMAP_URL} maxNativeZoom={16} attribution={BASEMAP_ATTRIBUTION} />
+        <TileLayer url={LABELS_URL} maxNativeZoom={16} />
         <CoordTracker onMove={setCoords} />
 
         {activeSection === 'seismic' && quakes && <EarthquakeMarkers quakes={quakes} />}

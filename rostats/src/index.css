@@ -131,8 +131,18 @@ body {
    LEAFLET OVERRIDES
 ══════════════════════════════════ */
 .leaflet-container { background: #0a1928 !important; cursor: crosshair !important; }
-.leaflet-control-zoom,
-.leaflet-control-attribution { display: none !important; }
+.leaflet-control-zoom { display: none !important; }
+/* The tile provider's terms require a visible attribution. */
+.leaflet-container .leaflet-control-attribution {
+  background: rgba(4, 9, 20, 0.75);
+  color: var(--txt3);
+  font-family: var(--sans);
+  font-size: 9px;
+  line-height: 1.6;
+  padding: 0 6px;
+  border-top-left-radius: var(--r-sm);
+}
+.leaflet-container .leaflet-control-attribution a { color: var(--txt2); }
 .leaflet-popup-content-wrapper {
   background: var(--bg-elevated) !important;
   border: 1px solid var(--border-hi) !important;
