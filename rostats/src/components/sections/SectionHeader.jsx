@@ -1,19 +1,27 @@
 import SourceBadge from '../SourceBadge'
-import SectionIcon from '../SectionIcon'
 
-/** Sticky header of a detail section: icon, title, data-source badge and provider link. */
-export default function SectionHeader({ icon, title, subtitle, source, href, linkLabel }) {
+/** Heading of a section: title, scope, where the data comes from and its state. */
+export default function SectionHeader({ title, subtitle, source, href, linkLabel }) {
   return (
-    <div className="detailHeader">
-      <span className="detailIcon"><SectionIcon id={icon} /></span>
-      <div>
-        <div className="detailTitle">{title}</div>
-        <div className="detailSub">{subtitle}</div>
-      </div>
-      <div className="detailMeta">
+    <header className="secHead">
+      <div className="secTop">
+        <h2 className="secTitle display" id="section-title">{title}</h2>
         <SourceBadge source={source} />
-        {href && <a className="phSrc" href={href} target="_blank" rel="noreferrer">{linkLabel} ↗</a>}
       </div>
+      <p className="secSub">
+        {subtitle}
+        {href && <> · <a href={href} target="_blank" rel="noreferrer">{linkLabel}</a></>}
+      </p>
+    </header>
+  )
+}
+
+/** Placeholder with the shape of a section, shown until its source answers. */
+export function SectionSkeleton({ label }) {
+  return (
+    <div className="secSkeleton" role="status" aria-label={label}>
+      <div className="skeleton secSkeletonHero" />
+      {[0, 1, 2, 3, 4].map(i => <div className="skeleton secSkeletonRow" key={i} />)}
     </div>
   )
 }

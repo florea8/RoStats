@@ -1,0 +1,347 @@
+/* ── Stage ──────────────────────────────────────────────────────────── */
+.stage {
+  position: relative;
+  min-width: 0;
+  background: var(--bg);
+}
+
+.mapCanvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* Darkens the edges so the country sits in the light and the surroundings recede. */
+.mapVignette {
+  position: absolute;
+  inset: 0;
+  z-index: 500;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 75% at 50% 48%, transparent 55%, rgba(12, 13, 15, 0.6) 100%);
+}
+
+@media (max-width: 960px) {
+  .stage {
+    height: min(58vh, 520px);
+    min-height: 320px;
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+/* ── Leaflet chrome ─────────────────────────────────────────────────── */
+.leaflet-container {
+  background: var(--bg);
+  font: inherit;
+  color: var(--text);
+}
+
+.leaflet-container a { color: var(--text-2); }
+
+/* The basemap is pulled down to the page's own darkness; labels stay legible. */
+.basemap { filter: brightness(0.9) contrast(1.15); }
+.basemapLabels { opacity: 0.8; }
+
+.leaflet-control-attribution {
+  padding: 2px var(--s2);
+  background: rgba(12, 13, 15, 0.8) !important;
+  font-size: var(--fs-label);
+  color: var(--text-3);
+}
+
+.leaflet-bar {
+  overflow: hidden;
+  border: 1px solid var(--line-2) !important;
+  border-radius: var(--radius-s);
+  box-shadow: none;
+}
+
+.leaflet-touch .leaflet-bar a,
+.leaflet-bar a {
+  width: 34px;
+  height: 34px;
+  line-height: 32px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  color: var(--text);
+  font-size: 18px;
+  transition: background-color 0.2s;
+}
+
+.leaflet-bar a:last-child { border-bottom: 0; }
+.leaflet-bar a:hover,
+.leaflet-bar a:focus { background: var(--surface-3); color: var(--text); }
+.leaflet-bar a.leaflet-disabled { background: var(--surface); color: var(--text-3); }
+
+.leaflet-top.leaflet-right .leaflet-control { margin: var(--s4) var(--s4) 0 0; }
+
+.leaflet-marker-icon:focus-visible { outline: none; }
+.leaflet-marker-icon:focus-visible .cityTag { outline: 2px solid var(--text); outline-offset: 2px; }
+.leaflet-interactive:focus { outline: none; }
+
+/* ── Earthquakes ────────────────────────────────────────────────────── */
+/* Dots pop in over about a second, in the order the events happened. */
+.quake {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: quakePop 0.55s var(--ease-back) both;
+  transition: stroke 0.2s, stroke-width 0.2s;
+}
+
+.quake:hover { stroke: var(--text); stroke-width: 2; }
+
+.quake--1  { animation-delay: 0.08s; }
+.quake--2  { animation-delay: 0.16s; }
+.quake--3  { animation-delay: 0.24s; }
+.quake--4  { animation-delay: 0.32s; }
+.quake--5  { animation-delay: 0.40s; }
+.quake--6  { animation-delay: 0.48s; }
+.quake--7  { animation-delay: 0.56s; }
+.quake--8  { animation-delay: 0.64s; }
+.quake--9  { animation-delay: 0.72s; }
+.quake--10 { animation-delay: 0.80s; }
+.quake--11 { animation-delay: 0.88s; }
+
+@keyframes quakePop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* Markers built from HTML are anchored at a zero-size box on the point. */
+.pinIcon { overflow: visible; }
+
+.ripple,
+.target,
+.cityPin {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.ripple i {
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  width: 80px;
+  height: 80px;
+  border: 1.5px solid var(--c);
+  border-radius: 50%;
+  opacity: 0;
+  animation: ripple 3.6s linear 1.2s infinite;
+}
+.ripple i:nth-child(2) { animation-delay: 2.4s; }
+.ripple i:nth-child(3) { animation-delay: 3.6s; }
+
+@keyframes ripple {
+  from { transform: scale(0.12); opacity: 1; }
+  to   { transform: scale(1); opacity: 0; }
+}
+
+/* Ring that closes in on the place picked in the panel. */
+.target {
+  top: -17px;
+  left: -17px;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid var(--text);
+  border-radius: 50%;
+  animation: targetIn 0.7s var(--ease) 0.5s both;
+}
+
+/* Four short ticks outside the ring, drawn as the two ends of a crossing line. */
+.target::before,
+.target::after {
+  content: '';
+  position: absolute;
+}
+.target::before {
+  top: 50%;
+  left: -9px;
+  right: -9px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--text) 6px, transparent 6px calc(100% - 6px), var(--text) calc(100% - 6px));
+}
+.target::after {
+  left: 50%;
+  top: -9px;
+  bottom: -9px;
+  width: 1px;
+  background: linear-gradient(var(--text) 6px, transparent 6px calc(100% - 6px), var(--text) calc(100% - 6px));
+}
+
+@keyframes targetIn {
+  from { transform: scale(2.4); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* ── City markers ───────────────────────────────────────────────────── */
+.cityPin { animation: fade 0.5s both; }
+
+.cityDot {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+/* Proportional disc: its area of influence breathes slowly. */
+.cityDisc {
+  position: absolute;
+  top: calc(var(--disc) / -2);
+  left: calc(var(--disc) / -2);
+  width: var(--disc);
+  height: var(--disc);
+  border: 1px solid var(--c);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--c) 16%, transparent);
+  animation: breathe 4.5s ease-in-out infinite alternate;
+}
+
+@keyframes breathe {
+  from { transform: scale(0.9); opacity: 0.65; }
+  to   { transform: scale(1.04); opacity: 1; }
+}
+
+.cityTag {
+  position: absolute;
+  top: -14px;
+  left: 13px;
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  height: 28px;
+  padding-inline: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius-s);
+  font-size: var(--fs-small);
+  color: var(--text-2);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.cityTag b {
+  font-stretch: 125%;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cityPin:hover .cityTag,
+.cityPin.is-picked .cityTag {
+  background: var(--surface-3);
+  border-color: var(--text);
+  color: var(--text);
+}
+
+/* ── Roads ──────────────────────────────────────────────────────────── */
+.flowRoad {
+  stroke-dasharray: 3 15;
+  animation: flowRoad 0.9s linear infinite;
+}
+.flowRoad.flow--SLOW  { animation-duration: 2.2s; }
+.flowRoad.flow--HEAVY { animation-duration: 5s; stroke-dasharray: 3 9; }
+
+@keyframes flowRoad {
+  from { stroke-dashoffset: 36; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* ── Popups ─────────────────────────────────────────────────────────── */
+.leaflet-popup-content-wrapper {
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  color: var(--text);
+}
+
+.leaflet-popup-tip {
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  box-shadow: none;
+}
+
+.leaflet-popup-content {
+  min-width: 168px;
+  margin: var(--s3) var(--s4);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  top: 6px;
+  right: 6px;
+  color: var(--text-3);
+}
+.leaflet-container a.leaflet-popup-close-button:hover { color: var(--text); }
+
+.mapPopupTitle {
+  margin-bottom: var(--s2);
+  padding-right: var(--s4);
+  font-size: var(--fs-body);
+  font-stretch: 125%;
+  font-weight: 600;
+}
+
+.mapPopupRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s4);
+  padding-block: 3px;
+  border-top: 1px solid var(--line);
+}
+
+.mapPopupRow dt { color: var(--text-3); }
+.mapPopupRow dd { text-align: right; }
+
+/* ── Legend ─────────────────────────────────────────────────────────── */
+.legend {
+  position: absolute;
+  left: var(--s4);
+  bottom: var(--s4);
+  z-index: 900;
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: var(--s1) var(--s4);
+  width: fit-content;
+  max-width: calc(100% - 2 * var(--s4));
+  padding: var(--s3) var(--s4);
+  background: var(--surface);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  font-size: var(--fs-small);
+  animation: rise 0.5s var(--ease) both;
+}
+
+.legendItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s1) var(--s4);
+}
+
+.legendItems li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.legendNote {
+  grid-column: 1 / -1;
+  color: var(--text-3);
+}
+
+/* The attribution keeps its corner; the legend stays clear of it. */
+@media (max-width: 960px) {
+  .legend {
+    left: var(--s2);
+    bottom: 28px;
+    padding: var(--s2) var(--s3);
+  }
+
+  .legendNote { display: none; }
+}

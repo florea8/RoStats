@@ -1,10 +1,8 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import TopBar from './components/TopBar'
-import MetricsStrip from './components/MetricsStrip'
-import LeftNav from './components/LeftNav'
-import MapCenter from './components/MapCenter'
-import RightPanel from './components/RightPanel'
-import Footer from './components/Footer'
+import MapView from './components/map/MapView'
+import SectionDetail from './components/SectionDetail'
+import IndicatorBoard from './components/IndicatorBoard'
 
 import { useEarthquakes } from './hooks/useEarthquakes'
 import { useWeather } from './hooks/useWeather'
@@ -14,6 +12,8 @@ import { sourceStatus } from './utils/status'
 
 export default function App() {
   const [activeSection, setActiveSection] = useState('seismic')
+  // The row picked in the panel, which the map flies to: { id, points } or null.
+  const [focus, setFocus] = useState(null)
 
   const earthquakes = useEarthquakes()
   const weather = useWeather()
@@ -26,26 +26,49 @@ export default function App() {
     weather: sourceStatus(weather, weather.source),
   }
 
+  const selectSection = id => {
+    setActiveSection(id)
+    setFocus(null)
+  }
+
   return (
-    <div className="root-layout">
+    <div className="app">
       <TopBar
+        active={activeSection}
+        onSelect={selectSection}
         status={status}
         updatedAt={Math.max(earthquakes.dataUpdatedAt, aqi.dataUpdatedAt, weather.dataUpdatedAt)}
+        busy={earthquakes.isFetching || aqi.isFetching || weather.isFetching}
+        earthquakes={earthquakes}
+        aqi={aqi}
+        weather={weather}
+        traffic={traffic}
       />
-      <MetricsStrip earthquakes={earthquakes} weather={weather} aqi={aqi} />
-      <div className="main-layout">
-        <LeftNav active={activeSection} onSelect={setActiveSection} status={status} />
-        <MapCenter earthquakes={earthquakes} aqi={aqi} weather={weather} activeSection={activeSection} />
-        <RightPanel
-          activeSection={activeSection}
-          earthquakes={earthquakes}
-          aqi={aqi}
-          weather={weather}
-          traffic={traffic}
-        />
-      </div>
-      <Footer />
+
+      {/* Indicators are national figures with no location, so they get a board instead of the map. */}
+      {activeSection === 'indicators' ? (
+        <IndicatorBoard />
+      ) : (
+        <>
+          <MapView
+            activeSection={activeSection}
+            quakes={earthquakes.data}
+            aqiData={aqi.data}
+            wxData={weather.data}
+            roads={traffic.data}
+            focus={focus}
+          />
+          <SectionDetail
+            activeSection={activeSection}
+            earthquakes={earthquakes}
+            aqi={aqi}
+            weather={weather}
+            traffic={traffic}
+            focus={focus}
+            onFocus={setFocus}
+          />
+        </>
+      )}
     </div>
   )
 }
-

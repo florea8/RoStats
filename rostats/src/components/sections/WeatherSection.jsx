@@ -1,46 +1,103 @@
+import { tempColor } from '../../utils/colors'
 import { CITIES } from '../../data/cities'
-import { wxCode } from '../../utils/weather'
-import SectionHeader from './SectionHeader'
+import { sentenceCase } from '../text'
+import CountUp from '../CountUp'
+import FocusRow from '../FocusRow'
+import Swatch from '../Swatch'
+import WeatherGlyph from '../WeatherGlyph'
+import SectionHeader, { SectionSkeleton } from './SectionHeader'
 
-export default function WeatherSection({ weather }) {
+export default function WeatherSection({ weather, focus, onFocus }) {
   const { data: wxData, isLoading, isError, source } = weather
+  const now = wxData?.bucuresti
 
   return (
     <>
       <SectionHeader
-        icon="weather"
         title="Weather"
-        subtitle="Current conditions · major cities"
+        subtitle="Current conditions · six cities"
         source={isError ? 'error' : source}
         href="https://openweathermap.org"
-        linkLabel="OWM"
+        linkLabel="OpenWeatherMap"
       />
 
-      {isLoading && <div className="loading"><div className="spin" />Loading weather…</div>}
-      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Could not reach the weather API</div>}
+      {isLoading && <SectionSkeleton label="Loading weather" />}
+      {isError && <p className="stateMsg" role="alert">The weather API could not be reached.</p>}
 
-      <div className="wxGrid">
-        {CITIES.map(({ id, label }) => {
-          const w = wxData?.[id]
-          return (
-            <div className="wxCard" key={id}>
-              <div className="wxCity">{label}</div>
-              <div className="wxTempRow">
-                <span className="wxCode">{wxCode(w?.description)}</span>
-                <span className="wxTemp">{w ? `${w.temp}°` : '—'}</span>
-              </div>
-              <div className="wxDesc">{w?.description ?? '—'}</div>
-              {w && <div className="wxMeta">HUM {w.humidity}% · WIND {w.wind} m/s</div>}
-            </div>
-          )
-        })}
-      </div>
+      {now && (
+        <div className="hero">
+          <div className="heroText">
+            <p className="label">Bucharest, now</p>
+            <p className="heroFigure display">
+              <CountUp value={now.temp} />
+              <span className="heroUnit heroUnit--after">°C</span>
+            </p>
+            <p className="heroNote">{sentenceCase(now.description)}</p>
+          </div>
+          <WeatherGlyph description={now.description} className="heroArt" />
+        </div>
+      )}
 
-      <div className="wxLegend">
-        <div className="wxLegendItem"><span className="wxLegTag">HUM</span> Humidity</div>
-        <div className="wxLegendItem"><span className="wxLegTag">WIND</span> Wind (m/s)</div>
-        <div className="wxLegendItem"><span className="wxLegTag">°C</span> Temperature</div>
-      </div>
+      {now && (
+        <dl className="stats">
+          <div className="stat">
+            <dt className="label">Feels like</dt>
+            <dd className="display">{now.feels_like}°</dd>
+          </div>
+          <div className="stat">
+            <dt className="label">Humidity</dt>
+            <dd className="display">{now.humidity}<span className="statUnit">%</span></dd>
+          </div>
+          <div className="stat">
+            <dt className="label">Wind</dt>
+            <dd className="display">{now.wind}<span className="statUnit">m/s</span></dd>
+          </div>
+        </dl>
+      )}
+
+      {source === 'demo' && (
+        <p className="note">
+          The weather source is unavailable, so these are demo values, not current readings.
+        </p>
+      )}
+
+      {wxData && (
+        <section className="list">
+          <header className="listHead">
+            <h3 className="label">Conditions by city</h3>
+            <span className="listHint">Select one to find it on the map</span>
+          </header>
+          <ol className="rows">
+            {CITIES.map(({ id, name, lat, lng }) => {
+              const w = wxData[id]
+              if (!w) return null
+              return (
+                <FocusRow
+                  key={id}
+                  id={`city-${id}`}
+                  points={[[lat, lng]]}
+                  focus={focus}
+                  onFocus={onFocus}
+                  className="row--wx"
+                >
+                  <WeatherGlyph description={w.description} />
+                  <span className="rowMain">
+                    <span className="rowTitle">{name}</span>
+                    <span className="rowSub">{sentenceCase(w.description)}</span>
+                  </span>
+                  <span className="rowMeta">
+                    <span><span className="visuallyHidden">Humidity </span>{w.humidity}%</span>
+                    <span><span className="visuallyHidden">Wind </span>{w.wind} m/s</span>
+                  </span>
+                  <span className="rowValue display">
+                    <Swatch color={tempColor(w.temp)} />{w.temp}°
+                  </span>
+                </FocusRow>
+              )
+            })}
+          </ol>
+        </section>
+      )}
     </>
   )
 }

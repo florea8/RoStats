@@ -6,14 +6,14 @@ import {
 
 describe('aqiColor / aqiTag', () => {
   it.each([
-    [0,   PALETTE.green,  'GOOD'],
-    [50,  PALETTE.green,  'GOOD'],
-    [51,  PALETTE.amber,  'MODERATE'],
-    [100, PALETTE.amber,  'MODERATE'],
-    [101, PALETTE.red,    'POOR'],
-    [150, PALETTE.red,    'POOR'],
-    [151, PALETTE.violet, 'UNHEALTHY'],
-    [400, PALETTE.violet, 'UNHEALTHY'],
+    [0,   PALETTE.sage,   'GOOD'],
+    [50,  PALETTE.sage,   'GOOD'],
+    [51,  PALETTE.ochre,  'MODERATE'],
+    [100, PALETTE.ochre,  'MODERATE'],
+    [101, PALETTE.orange, 'POOR'],
+    [150, PALETTE.orange, 'POOR'],
+    [151, PALETTE.plum,   'UNHEALTHY'],
+    [400, PALETTE.plum,   'UNHEALTHY'],
   ])('AQI %i → %s, %s', (value, color, tag) => {
     expect(aqiColor(value)).toBe(color)
     expect(aqiTag(value)).toBe(tag)
@@ -22,12 +22,12 @@ describe('aqiColor / aqiTag', () => {
 
 describe('magColor', () => {
   it.each([
-    [1.2, PALETTE.green],
-    [2.99, PALETTE.green],
-    [3, PALETTE.amber],
-    [3.9, PALETTE.amber],
-    [4, PALETTE.red],
-    [6.5, PALETTE.red],
+    [1.2, PALETTE.ochre],
+    [2.99, PALETTE.ochre],
+    [3, PALETTE.orange],
+    [3.9, PALETTE.orange],
+    [4, PALETTE.crimson],
+    [6.5, PALETTE.crimson],
   ])('M %f → %s', (mag, color) => {
     expect(magColor(mag)).toBe(color)
   })
@@ -35,12 +35,12 @@ describe('magColor', () => {
 
 describe('tempColor', () => {
   it.each([
-    [-12, PALETTE.sky],
-    [0,   PALETTE.blue],
-    [9,   PALETTE.blue],
-    [10,  PALETTE.green],
-    [20,  PALETTE.amber],
-    [30,  PALETTE.red],
+    [-12, PALETTE.navy],
+    [0,   PALETTE.steel],
+    [9,   PALETTE.steel],
+    [10,  PALETTE.sand],
+    [20,  PALETTE.apricot],
+    [30,  PALETTE.brick],
   ])('%i°C → %s', (t, color) => {
     expect(tempColor(t)).toBe(color)
   })
@@ -55,6 +55,14 @@ describe('level scales', () => {
       const mins = levels.map(l => l.min)
       expect(mins).toEqual([...mins].sort((a, b) => b - a))
       expect(mins.at(-1)).toBe(-Infinity)
+    },
+  )
+
+  it.each([['AQI', AQI_LEVELS], ['magnitude', MAG_LEVELS], ['temperature', TEMP_LEVELS]])(
+    '%s levels each use a different color',
+    (_, levels) => {
+      const colors = levels.map(l => l.color)
+      expect(new Set(colors).size).toBe(colors.length)
     },
   )
 })

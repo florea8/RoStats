@@ -1,45 +1,79 @@
-import { PALETTE } from '../../utils/colors'
+import { describeRoad } from '../traffic'
+import CountUp from '../CountUp'
+import FocusRow from '../FocusRow'
 import SectionHeader from './SectionHeader'
 
-const STATES = [
-  { key: 'FREE',  label: 'Free flow', color: PALETTE.green, badge: 'trFree' },
-  { key: 'SLOW',  label: 'Moderate',  color: PALETTE.amber, badge: 'trSlow' },
-  { key: 'HEAVY', label: 'Heavy',     color: PALETTE.red,   badge: 'trHeavy' },
-]
-const STATE_BY_KEY = Object.fromEntries(STATES.map(s => [s.key, s]))
-
-function Dot({ color }) {
-  return <div className="trDot" style={{ background: color, boxShadow: `0 0 6px ${color}88` }} />
+/** A short stretch of road whose dashes move as fast as its traffic does. */
+function Flow({ state }) {
+  return (
+    <svg className={`flowMini flow--${state.key}`} viewBox="0 0 44 6" style={{ color: state.color }} aria-hidden="true">
+      <path className="flowMiniBase" d="M1 3h42" />
+      <path className="flowDash" d="M1 3h42" />
+    </svg>
+  )
 }
 
-export default function TrafficSection({ traffic }) {
-  const { data: roads, source } = traffic
+export default function TrafficSection({ traffic, focus, onFocus }) {
+  const { data, source } = traffic
+  const roads = data?.map(describeRoad)
+  const slowed = roads?.filter(road => road.state.key !== 'FREE').length
 
   return (
     <>
-      <SectionHeader icon="traffic" title="Traffic" subtitle="Main roads · estimated" source={source} />
+      <SectionHeader title="Traffic" subtitle="Five main roads · estimated" source={source} />
 
-      <div className="trLegend">
-        {STATES.map(s => (
-          <div className="trLegItem" key={s.key}><Dot color={s.color} />{s.label}</div>
-        ))}
-      </div>
-
-      {roads?.map(r => {
-        const state = STATE_BY_KEY[r.status]
-        return (
-          <div className="trRow" key={r.name}>
-            <Dot color={state?.color ?? PALETTE.muted} />
-            <span className="trName">{r.name}</span>
-            <span className={`trBadge ${state?.badge ?? ''}`}>{r.status}</span>
+      {roads && (
+        <div className="hero hero--stacked">
+          <div className="heroText">
+            <p className="label">Main roads slowed, now</p>
+            <p className="heroFigure display">
+              <CountUp value={slowed} />
+              <span className="heroUnit heroUnit--after">of {roads.length}</span>
+            </p>
           </div>
-        )
-      })}
+          {/* One segment per road, in the color of its state. */}
+          <div className="segments" aria-hidden="true">
+            {roads.map((road, i) => (
+              <span
+                key={road.code}
+                className="segment"
+                style={{ background: road.state.color, animationDelay: `${i * 70}ms` }}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
-      <div className="trNote">
-        Simulated data: each road state is estimated from the time of day (rush hour,
-        normal traffic, night). It does not come from a live traffic source.
-      </div>
+      <p className="note">
+        These are not measurements. Each road is given a typical state for the time of day
+        (rush hour, daytime, night); no live traffic source is connected.
+      </p>
+
+      {roads && (
+        <section className="list">
+          <header className="listHead">
+            <h3 className="label">State by road</h3>
+            <span className="listHint">Select one to find it on the map</span>
+          </header>
+          <ol className="rows">
+            {roads.map(road => (
+              <FocusRow
+                key={road.code}
+                id={`road-${road.code}`}
+                points={road.path ?? []}
+                focus={focus}
+                onFocus={onFocus}
+                className="row--road"
+              >
+                <span className="roadCode">{road.code}</span>
+                <span className="rowTitle">{road.label.slice(road.code.length).trim()}</span>
+                <Flow state={road.state} />
+                <span className="rowLevel">{road.state.label}</span>
+              </FocusRow>
+            ))}
+          </ol>
+        </section>
+      )}
     </>
   )
 }

@@ -1,205 +1,211 @@
-/* ── TopBar ──────────────────────────────────── */
 .topbar {
-  height: 58px;
-  background: rgba(5, 12, 24, 0.98);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid var(--border-md);
-  display: flex;
-  align-items: center;
-  padding: 0 22px;
-  gap: 16px;
-  flex-shrink: 0;
   position: relative;
-  z-index: 100;
-}
-
-/* Gradient accent line at bottom */
-.topbar::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, var(--blue) 25%, var(--teal) 60%, transparent 100%);
-  opacity: 0.55;
-}
-
-/* Brand block */
-.tbBrand {
+  z-index: 20;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--s5);
+  padding-inline: var(--s5);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
 }
 
-.tbLogoMark {
+/* ── Brand ──────────────────────────────────────────────────────────── */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  flex: none;
+}
+
+.brandMark {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: var(--text);
+  stroke-width: 2;
+  overflow: visible;
+}
+
+.brandRing { opacity: 0.7; }
+
+/* The outer ring breathes outward and fades, like a wave leaving the source. */
+.brandRing--outer {
+  transform-origin: 16px 16px;
+  animation: brandWave 3.2s var(--ease) infinite;
+}
+
+.brandCore { fill: #FFD34D; stroke: none; }
+
+@keyframes brandWave {
+  0%   { transform: scale(0.6); opacity: 0.8; }
+  70%  { transform: scale(1.08); opacity: 0; }
+  100% { transform: scale(1.08); opacity: 0; }
+}
+
+.brandName { font-size: var(--fs-heading); }
+
+.brandSub {
+  padding-left: var(--s3);
+  border-left: 1px solid var(--line-2);
+  font-size: var(--fs-small);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+/* ── Section switcher ───────────────────────────────────────────────── */
+.nav {
   position: relative;
-  width: 30px;
-  height: 30px;
+  display: flex;
+  align-self: stretch;
+  min-width: 0;
+  margin-inline: auto;
+}
+
+.navTab {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(79, 172, 254, 0.22);
-  border-radius: var(--r-sm);
-  background: rgba(79, 172, 254, 0.06);
-}
-
-.tbLogoText {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.tbLogo {
-  font-size: 16px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  background: linear-gradient(110deg, var(--txt) 40%, var(--blue));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  user-select: none;
-  line-height: 1;
-}
-
-.tbTagline {
-  font-size: 9px;
+  gap: var(--s2);
+  padding-inline: var(--s4);
+  font-size: var(--fs-small);
   font-weight: 500;
-  color: var(--txt4);
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  line-height: 1;
+  color: var(--text-3);
+  white-space: nowrap;
+  transition: color 0.25s;
 }
 
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--green);
-  flex-shrink: 0;
-  animation: pulse-green 2.2s ease-in-out infinite;
-  -webkit-text-fill-color: initial;
-}
+.navTab:hover,
+.navTab[aria-current='true'] { color: var(--text); }
 
-.tbDiv {
-  width: 1px;
-  height: 18px;
-  background: var(--border-hi);
-  flex-shrink: 0;
-}
+.navTab:focus-visible { outline-offset: -4px; }
 
-/* Online status indicators */
-.tbOnlineIndicators {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.tbOnlineItem {
-  display: flex;
+.navFigure {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--txt4);
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-}
-
-.tbODot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 6px var(--green);
-  flex-shrink: 0;
-}
-
-/* Status dots reflect the real state of each data source */
-.tbODot--demo    { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
-.tbODot--error   { background: var(--red);   box-shadow: 0 0 6px var(--red); }
-.tbODot--loading { background: var(--txt4);  box-shadow: none; }
-
-.tbSpacer { flex: 1; }
-
-.tbStatus {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.upd {
-  font-size: 10px;
-  color: var(--txt3);
-  letter-spacing: 0.2px;
-}
-
-.liveBadge {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  background: rgba(29, 233, 160, 0.08);
-  border: 1px solid rgba(29, 233, 160, 0.28);
+  padding: 2px 7px;
+  border: 1px solid var(--line);
   border-radius: 99px;
-  padding: 4px 12px;
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--green);
-  letter-spacing: 1.4px;
-  cursor: default;
-  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  color: var(--text-2);
+  transition: border-color 0.25s, color 0.25s;
 }
 
-.liveBadge:hover {
-  border-color: rgba(29, 233, 160, 0.48);
-  box-shadow: 0 0 16px rgba(29, 233, 160, 0.18);
+.navTab[aria-current='true'] .navFigure {
+  border-color: var(--line-2);
+  color: var(--text);
 }
 
-.liveRing {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--green);
-  position: relative;
-  flex-shrink: 0;
+/* One bar that slides to the current tab instead of five that switch on and off. */
+.navGlider {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: var(--tab-w, 0);
+  height: 2px;
+  background: var(--text);
+  transform: translateX(var(--tab-x, 0));
+  transition: transform 0.45s var(--ease), width 0.45s var(--ease);
 }
 
-@media (max-width: 480px) {
-  .topbar { height: 46px; padding: 0 14px; gap: 8px; }
-  .tbTagline { display: none; }
-  .tbDiv { display: none; }
-  .tbOnlineIndicators { display: none; }
-  .upd { display: none; }
-  .tbLogoMark { width: 24px; height: 24px; }
-  .tbLogo { font-size: 13px; }
-  .liveBadge { padding: 3px 8px; font-size: 8px; letter-spacing: 1px; }
-  .clock { font-size: 11px; }
+/* ── Source states ──────────────────────────────────────────────────── */
+.topMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--s5);
+  flex: none;
+  font-size: var(--fs-small);
 }
 
-.liveRing::after {
+.topSources {
+  display: flex;
+  gap: var(--s4);
+}
+
+.topSource {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.topSource dt { color: var(--text-3); }
+
+.topUpdated {
+  color: var(--text-3);
+  white-space: nowrap;
+}
+.topUpdated time { color: var(--text-2); }
+
+/* ── Fetch indicator ────────────────────────────────────────────────── */
+.topProgress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.topProgress::after {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: 50%;
-  border: 1.5px solid var(--green);
-  animation: livering 1.6s ease-out infinite;
+  inset: 0;
+  width: 30%;
+  background: linear-gradient(90deg, transparent, var(--text), transparent);
+  animation: progress 1.1s ease-in-out infinite;
 }
 
-.clock {
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--txt2);
-  letter-spacing: 1px;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-md);
-  padding: 5px 12px;
-  border-radius: var(--r-sm);
-  cursor: default;
-  transition: border-color var(--fast) var(--ease), color var(--fast) var(--ease);
+@keyframes progress {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(434%); }
 }
 
-.clock:hover {
-  border-color: var(--blue);
-  color: var(--txt);
+/* ── Narrower bars ──────────────────────────────────────────────────── */
+@media (max-width: 1480px) {
+  .brandSub { display: none; }
+}
+
+@media (max-width: 1320px) {
+  .topSources { display: none; }
+}
+
+@media (max-width: 1100px) {
+  .navFigure { display: none; }
+}
+
+/* Stacked: brand and states on the first row, tabs on a row that scrolls sideways. */
+@media (max-width: 960px) {
+  .topbar {
+    position: sticky;
+    top: 0;
+    flex-wrap: wrap;
+    gap: 0 var(--s4);
+    padding: var(--s3) var(--s4) 0;
+  }
+
+  .topMeta { margin-left: auto; }
+  .topSources { display: flex; gap: var(--s3); }
+  .topSource dt { display: none; }
+  .topUpdated { display: none; }
+
+  .nav {
+    order: 3;
+    flex: 0 0 calc(100% + 2 * var(--s4));
+    height: 44px;
+    margin: var(--s2) calc(-1 * var(--s4)) 0;
+    padding-inline: var(--s2);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+
+  .navTab { padding-inline: var(--s3); }
+  .navFigure { display: inline-flex; }
+  .navGlider { bottom: 0; }
+}
+
+@media (max-width: 420px) {
+  .navFigure { display: none; }
 }

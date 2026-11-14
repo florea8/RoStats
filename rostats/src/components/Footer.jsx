@@ -10,17 +10,20 @@ const SOURCES = [
 
 export default function Footer() {
   return (
-    <footer className="footer boot-fade d5">
-      {SOURCES.map(([name, href]) => (
-        <a className="fSrc" key={name} href={href} target="_blank" rel="noreferrer">{name}</a>
-      ))}
-      <div className="fSpacer" />
-      <div className="fTag">
+    <footer className="footer">
+      <p>
+        Sources:{' '}
+        {SOURCES.map(([name, href], i) => (
+          <span key={name}>
+            {i > 0 && ', '}
+            <a href={href} target="_blank" rel="noreferrer">{name}</a>
+          </span>
+        ))}
+      </p>
+      <p>
         RoStats {APP_VERSION} ·{' '}
-        <a href="https://github.com/florea8/RoStats" target="_blank" rel="noreferrer">
-          <span>github.com/florea8/RoStats</span>
-        </a>
-      </div>
+        <a href="https://github.com/florea8/RoStats" target="_blank" rel="noreferrer">Source code on GitHub</a>
+      </p>
     </footer>
   )
 }

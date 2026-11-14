@@ -1,56 +1,112 @@
-import { PALETTE, magColor } from '../../utils/colors'
-import { dailyCounts } from '../../utils/earthquakes'
+import { magColor } from '../../utils/colors'
+import { summarize24h } from '../../utils/earthquakes'
 import { timeAgo } from '../../utils/time'
-import SectionHeader from './SectionHeader'
-import Sparkline from './Sparkline'
+import { nearCity } from '../geo'
+import CountUp from '../CountUp'
+import FocusRow from '../FocusRow'
+import Swatch from '../Swatch'
+import SectionHeader, { SectionSkeleton } from './SectionHeader'
+import Seismogram from './Seismogram'
 
-export default function SeismicSection({ earthquakes }) {
+const ROWS = 12
+
+/** Rings leaving a point: the same motion that marks the latest event on the map. */
+function Waves({ color }) {
+  return (
+    <svg className="heroArt waves" viewBox="0 0 100 100" style={{ color }} aria-hidden="true">
+      <circle className="wavesRing" cx="50" cy="50" r="46" />
+      <circle className="wavesRing wavesRing--2" cx="50" cy="50" r="46" />
+      <circle className="wavesRing wavesRing--3" cx="50" cy="50" r="46" />
+      <circle className="wavesCore" cx="50" cy="50" r="5" />
+    </svg>
+  )
+}
+
+export default function SeismicSection({ earthquakes, focus, onFocus }) {
   const { data: quakes, isLoading, isError, dataUpdatedAt } = earthquakes
-  const counts = quakes ? dailyCounts(quakes, dataUpdatedAt) : []
+  const latest = quakes?.[0]
+  const day = quakes ? summarize24h(quakes, dataUpdatedAt) : null
 
   return (
     <>
       <SectionHeader
-        icon="seismic"
-        title="Seismic Activity"
-        subtitle="Romania region · last 30 days"
+        title="Earthquakes"
+        subtitle="Romania and its borders · last 30 days"
         source={isError ? 'error' : quakes && 'live'}
         href="https://www.emsc-csem.org"
         linkLabel="EMSC"
       />
 
-      {isLoading && <div className="loading"><div className="spin" />Loading seismic data…</div>}
-      {isError && <div className="loading" style={{ color: 'var(--red)' }}>Could not reach EMSC</div>}
-      {quakes?.length === 0 && <div className="loading">No earthquakes recorded in the last 30 days.</div>}
+      {isLoading && <SectionSkeleton label="Loading earthquakes" />}
+      {isError && <p className="stateMsg" role="alert">EMSC could not be reached.</p>}
+      {quakes?.length === 0 && <p className="stateMsg">No earthquakes recorded in the last 30 days.</p>}
 
-      <div className="eqList">
-        {quakes?.slice(0, 10).map(q => {
-          const { magnitude: mag, place, time } = q
-          return (
-            <div className="eqRow" key={q.id}>
-              <div className="eqBar" style={{ background: magColor(mag) }} />
-              <div className="eqMag" style={{ color: magColor(mag) }}>{mag.toFixed(1)}</div>
-              <div className="eqBody">
-                <div className="eqPlace">{place ?? '—'}</div>
-                <div className="eqMeta">↓{q.depth_km}km · {timeAgo(time)}</div>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      {latest && (
+        <div className="hero">
+          <div className="heroText">
+            <p className="label">Latest event</p>
+            <p className="heroFigure display">
+              <span className="heroUnit">M</span>
+              <CountUp value={latest.magnitude} decimals={1} />
+            </p>
+            <p className="heroNote">
+              {nearCity(latest.lat, latest.lng)}
+              <span className="heroNoteDim">{timeAgo(latest.time)} · {latest.depth_km} km deep</span>
+            </p>
+          </div>
+          <Waves color={magColor(latest.magnitude)} />
+        </div>
+      )}
 
-      <div className="panel">
-        <div className="panelHead">
-          <span className="phTitle">Seismic frequency · 7 days</span>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--red)', letterSpacing: 1 }}>
-            {counts.length ? Math.max(...counts) : 0}/DAY MAX
-          </span>
-        </div>
-        <div className="sparkWrap">
-          <div className="sparkLabel"><span>events per day</span></div>
-          <Sparkline values={counts} color={PALETTE.red} />
-        </div>
-      </div>
+      {quakes && (
+        <dl className="stats">
+          <div className="stat">
+            <dt className="label">Events · 24 h</dt>
+            <dd className="display"><CountUp value={day.count} /></dd>
+          </div>
+          <div className="stat">
+            <dt className="label">Largest · 24 h</dt>
+            <dd className="display">{day.maxMag != null ? `M ${day.maxMag.toFixed(1)}` : '—'}</dd>
+          </div>
+          <div className="stat">
+            <dt className="label">Events · 30 d</dt>
+            <dd className="display"><CountUp value={quakes.length} /></dd>
+          </div>
+        </dl>
+      )}
+
+      {quakes?.length > 0 && <Seismogram quakes={quakes} now={dataUpdatedAt} />}
+
+      {quakes?.length > 0 && (
+        <section className="list">
+          <header className="listHead">
+            <h3 className="label">Latest {Math.min(ROWS, quakes.length)} events</h3>
+            <span className="listHint">Select one to find it on the map</span>
+          </header>
+          <ol className="rows">
+            {quakes.slice(0, ROWS).map(q => (
+              <FocusRow
+                key={q.id}
+                id={q.id}
+                points={[[q.lat, q.lng]]}
+                focus={focus}
+                onFocus={onFocus}
+                className="row--quake"
+              >
+                <span className="rowMag display">
+                  <Swatch color={magColor(q.magnitude)} />
+                  {q.magnitude.toFixed(1)}
+                </span>
+                <span className="rowMain">
+                  <span className="rowTitle">{nearCity(q.lat, q.lng)}</span>
+                  <span className="rowSub">{q.depth_km} km deep</span>
+                </span>
+                <time className="rowEnd" dateTime={q.time}>{timeAgo(q.time)}</time>
+              </FocusRow>
+            ))}
+          </ol>
+        </section>
+      )}
     </>
   )
 }

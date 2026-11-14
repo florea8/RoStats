@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import { MapContainer, TileLayer, CircleMarker, Marker, Popup, useMapEvents } from 'react-leaflet'
+import { Fragment, useEffect, useRef } from 'react'
+import {
+  MapContainer, TileLayer, AttributionControl, ZoomControl, CircleMarker, Marker, Polyline, Popup, useMap,
+} from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import {
@@ -9,141 +11,327 @@ import {
 import { markerRadius } from '../../utils/earthquakes'
 import { CITIES } from '../../data/cities'
 import { timeAgo } from '../../utils/time'
+import { nearCity } from '../geo'
+import { sentenceCase } from '../text'
+import { TRAFFIC_STATES, describeRoad } from '../traffic'
+import Swatch from '../Swatch'
+import '../../styles/Map.css'
 
-const ROMANIA_CENTER = [45.94, 24.97]
-const ROMANIA_BOUNDS = [[43.3, 19.7], [48.6, 30.3]]
+const ROMANIA = L.latLngBounds([43.6, 20.2], [48.3, 29.8])
+const PAN_LIMIT = [[38.5, 10.0], [53.0, 40.0]]
+const INK = PALETTE.ink
+const MAX_QUAKE_MARKERS = 150
+const POP_STEPS = 12   // quake markers appear in this many waves, oldest first
 
-// Esri Dark Gray Canvas: a keyless dark basemap, with labels on a separate layer.
+// Esri Dark Gray Canvas: a keyless, quiet basemap with labels on a separate layer.
 const ESRI_TILES = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas'
 const BASEMAP_URL = `${ESRI_TILES}/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`
 const LABELS_URL  = `${ESRI_TILES}/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`
 const BASEMAP_ATTRIBUTION = 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap contributors'
+const LEAFLET_CREDIT = '<a href="https://leafletjs.com" target="_blank" rel="noreferrer">Leaflet</a>'
 
-const LEGENDS = {
-  seismic: { title: 'MAGNITUDE',   levels: MAG_LEVELS },
-  aqi:     { title: 'CITY AQI',    levels: AQI_LEVELS },
-  weather: { title: 'TEMPERATURE', levels: TEMP_LEVELS },
+// Scales are stored from the highest level down; legends read from low to high.
+const ascending = levels => [...levels].reverse()
+
+const LAYERS = {
+  seismic: { title: 'Magnitude', legend: ascending(MAG_LEVELS) },
+  aqi:     { title: 'US AQI', legend: ascending(AQI_LEVELS), ownLabels: true },
+  weather: { title: 'Temperature', legend: ascending(TEMP_LEVELS), ownLabels: true },
+  traffic: { title: 'Traffic', legend: TRAFFIC_STATES },
 }
 
-function cityIcon(color) {
-  return L.divIcon({
-    className: '',
-    html: `<div style="width:11px;height:11px;border-radius:50%;background:${color};border:2px solid rgba(255,255,255,0.55);box-shadow:0 0 0 3px ${color}33,0 0 14px ${color}66;"></div>`,
-    iconSize: [11, 11],
-    iconAnchor: [5, 5],
-  })
+const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+// The wheel zooms the map only where the page itself does not scroll.
+const fixedLayout = () => window.matchMedia('(min-width: 961px)').matches
+
+// Fractional zoom offsets at which a 256px tile is drawn 160, 192, 224 or 256px
+// wide. At other zoom levels tile edges fall between pixels and show as seams.
+const CRISP_STEPS = [5, 6, 7, 8].map(eighths => Math.log2(eighths / 8))
+
+/** Largest zoom not above `zoom` at which tiles land on whole pixels. */
+function crispZoom(zoom) {
+  const top = Math.ceil(zoom)
+  const options = [top - 1, ...CRISP_STEPS.map(step => top + step)]
+  return Math.max(...options.filter(z => z <= zoom))
 }
 
-function PopupRow({ label, children }) {
-  return <div className="popup-row"><span>{label}</span><span>{children}</span></div>
+/** Center and zoom that show the whole country, clear of the legend at the bottom. */
+function countryView(map) {
+  const small = map.getSize().x < 600
+  const side = small ? 12 : 40
+  const top = small ? 12 : 40
+  const bottom = small ? 68 : 96
+  const zoom = crispZoom(map.getBoundsZoom(ROMANIA, false, L.point(side * 2, top + bottom)))
+  const middle = map.project(ROMANIA.getSouthWest(), zoom)
+    .add(map.project(ROMANIA.getNorthEast(), zoom))
+    .divideBy(2)
+  return { center: map.unproject(middle.add([0, (bottom - top) / 2]), zoom), zoom }
 }
 
-function CoordTracker({ onMove }) {
-  useMapEvents({
-    mousemove(e) {
-      onMove(`${e.latlng.lat.toFixed(3)}° N  ${e.latlng.lng.toFixed(3)}° E`)
-    },
-  })
+/**
+ * Moves the map: the whole country by default, a flight to the row picked
+ * in the panel, and a flight back when the pick is released.
+ */
+function Camera({ focus }) {
+  const map = useMap()
+  const focusRef = useRef(focus)
+  const away = useRef(false)
+
+  useEffect(() => {
+    focusRef.current = focus
+  }, [focus])
+
+  useEffect(() => {
+    const fit = () => {
+      if (focusRef.current) return
+      const { center, zoom } = countryView(map)
+      map.setView(center, zoom, { animate: false })
+    }
+    fit()
+    map.on('resize', fit)
+    return () => map.off('resize', fit)
+  }, [map])
+
+  useEffect(() => {
+    const animate = !reducedMotion()
+    const points = focus?.points ?? []
+    if (points.length === 1) {
+      away.current = true
+      map.flyTo(points[0], Math.max(map.getZoom(), 8), { animate, duration: 1.1 })
+    } else if (points.length > 1) {
+      away.current = true
+      map.flyToBounds(L.latLngBounds(points), { animate, duration: 1.1, padding: [96, 96], maxZoom: 9 })
+    } else if (away.current) {
+      away.current = false
+      const { center, zoom } = countryView(map)
+      map.flyTo(center, zoom, { animate, duration: 0.9 })
+    }
+  }, [map, focus])
+
   return null
 }
 
-function Legend({ title, levels }) {
-  return (
-    <div className="legSection">
-      <div className="legTitle">{title}</div>
-      {levels.map(l => (
-        <div className="leg" key={l.label}><span className="ldot" style={{ background: l.color }} />{l.label}</div>
-      ))}
-    </div>
-  )
+// Icons are cached by their markup: a new icon object would make Leaflet
+// rebuild the marker and restart its animation on every render.
+const icons = new Map()
+function htmlIcon(className, html) {
+  const key = className + html
+  if (!icons.has(key)) icons.set(key, L.divIcon({ className, html, iconSize: [0, 0] }))
+  return icons.get(key)
+}
+
+/** City marker: a dot in the scale color, an optional disc sized by the value, and a tag with the reading. */
+function cityIcon({ color, name, text, disc = 0, picked }) {
+  return htmlIcon('pinIcon', `
+    <span class="cityPin${picked ? ' is-picked' : ''}" style="--c:${color};--disc:${disc}px">
+      ${disc ? '<i class="cityDisc"></i>' : ''}
+      <i class="cityDot"></i>
+      <span class="cityTag"><span>${name}</span><b>${text}</b></span>
+    </span>`)
+}
+
+function PopupRow({ label, children }) {
+  return <div className="mapPopupRow"><dt>{label}</dt><dd>{children}</dd></div>
 }
 
 function EarthquakeMarkers({ quakes }) {
-  return quakes.slice(0, 12).map(q => {
-    const { magnitude: mag, place, time } = q
-    const color = magColor(mag)
-    return (
-      <CircleMarker
-        key={q.id}
-        center={[q.lat, q.lng]}
-        radius={markerRadius(mag)}
-        pathOptions={{ color, fillColor: color, fillOpacity: 0.85, weight: 1.5 }}
-      >
-        <Popup>
-          <div className="popup-head">EARTHQUAKE M{mag.toFixed(1)}</div>
-          <PopupRow label="LOCATION">{place ?? '—'}</PopupRow>
-          <PopupRow label="DEPTH">{q.depth_km} km</PopupRow>
-          <PopupRow label="TIME">{timeAgo(time)}</PopupRow>
-        </Popup>
-      </CircleMarker>
-    )
-  })
-}
-
-function AqiMarkers({ aqiData }) {
-  return CITIES.map(c => {
-    const v = aqiData?.[c.id]
-    return (
-      <Marker key={c.id} position={[c.lat, c.lng]} icon={cityIcon(v != null ? aqiColor(v) : PALETTE.muted)}>
-        <Popup>
-          <div className="popup-head">{c.label}</div>
-          <PopupRow label="AQI">{v ?? '—'}</PopupRow>
-          <PopupRow label="QUALITY">{v != null ? aqiTag(v) : '—'}</PopupRow>
-        </Popup>
-      </Marker>
-    )
-  })
-}
-
-function WeatherMarkers({ wxData }) {
-  return CITIES.map(c => {
-    const w = wxData?.[c.id]
-    return (
-      <Marker key={c.id} position={[c.lat, c.lng]} icon={cityIcon(w ? tempColor(w.temp) : PALETTE.muted)}>
-        <Popup>
-          <div className="popup-head">{c.label}</div>
-          <PopupRow label="TEMP">{w ? `${w.temp}°C` : '—'}</PopupRow>
-          <PopupRow label="WEATHER">{w?.description ?? '—'}</PopupRow>
-          <PopupRow label="HUMIDITY">{w ? `${w.humidity}%` : '—'}</PopupRow>
-          <PopupRow label="WIND">{w ? `${w.wind} m/s` : '—'}</PopupRow>
-        </Popup>
-      </Marker>
-    )
-  })
-}
-
-/** Leaflet map of Romania showing the markers and legend of the active section. */
-export default function MapView({ activeSection, quakes, aqiData, wxData }) {
-  const [coords, setCoords] = useState('45.940° N  24.970° E')
-  const legend = LEGENDS[activeSection]
+  // Oldest first, so the most recent events are drawn on top and appear last.
+  const shown = quakes.slice(0, MAX_QUAKE_MARKERS).reverse()
+  const latest = quakes[0]
 
   return (
-    <div className="mapPane">
-      <MapContainer
-        center={ROMANIA_CENTER}
-        zoom={7}
-        minZoom={6}
-        maxZoom={12}
-        maxBounds={ROMANIA_BOUNDS}
-        maxBoundsViscosity={1.0}
-        zoomControl={false}
-        style={{ width: '100%', height: '100%' }}
-      >
-        <TileLayer url={BASEMAP_URL} maxNativeZoom={16} attribution={BASEMAP_ATTRIBUTION} />
-        <TileLayer url={LABELS_URL} maxNativeZoom={16} />
-        <CoordTracker onMove={setCoords} />
+    <>
+      {shown.map((q, i) => (
+        <CircleMarker
+          key={q.id}
+          center={[q.lat, q.lng]}
+          radius={markerRadius(q.magnitude)}
+          pathOptions={{
+            className: `quake quake--${Math.floor((i / shown.length) * POP_STEPS)}`,
+            color: INK,
+            weight: 1.5,
+            fillColor: magColor(q.magnitude),
+            fillOpacity: 0.95,
+          }}
+        >
+          <Popup>
+            <h3 className="mapPopupTitle">Magnitude {q.magnitude.toFixed(1)}</h3>
+            <dl>
+              <PopupRow label="Location">{nearCity(q.lat, q.lng)}</PopupRow>
+              <PopupRow label="Depth">{q.depth_km} km</PopupRow>
+              <PopupRow label="Time">{timeAgo(q.time)}</PopupRow>
+            </dl>
+          </Popup>
+        </CircleMarker>
+      ))}
 
-        {activeSection === 'seismic' && quakes && <EarthquakeMarkers quakes={quakes} />}
-        {activeSection === 'aqi'     && <AqiMarkers aqiData={aqiData} />}
-        {activeSection === 'weather' && <WeatherMarkers wxData={wxData} />}
-      </MapContainer>
+      {/* Waves keep leaving the most recent event, so it can be told from the rest at a glance. */}
+      {latest && (
+        <Marker
+          position={[latest.lat, latest.lng]}
+          icon={htmlIcon('pinIcon', `<span class="ripple" style="--c:${magColor(latest.magnitude)}"><i></i><i></i><i></i></span>`)}
+          interactive={false}
+          keyboard={false}
+        />
+      )}
+    </>
+  )
+}
 
-      <div className="mapChip mapChipTitle">INTERACTIVE MAP · ROMANIA</div>
-      <div className="mapChip mapChipCoords">{coords}</div>
+function AqiMarkers({ aqiData, focus }) {
+  return CITIES.map(c => {
+    const v = aqiData?.[c.id]
+    const icon = cityIcon({
+      color: v != null ? aqiColor(v) : PALETTE.muted,
+      name: c.name,
+      text: v ?? '–',
+      // The disc grows with the index, up to the top of the scale.
+      disc: v != null ? 28 + (Math.min(v, 200) / 200) * 72 : 0,
+      picked: focus?.id === `city-${c.id}`,
+    })
+    return (
+      <Marker key={c.id} position={[c.lat, c.lng]} icon={icon}>
+        <Popup>
+          <h3 className="mapPopupTitle">{c.name}</h3>
+          <dl>
+            <PopupRow label="US AQI">{v ?? '—'}</PopupRow>
+            <PopupRow label="Level">{v != null ? sentenceCase(aqiTag(v)) : '—'}</PopupRow>
+          </dl>
+        </Popup>
+      </Marker>
+    )
+  })
+}
 
-      <div className="mapLegend">
-        {legend && <Legend title={legend.title} levels={legend.levels} />}
+function WeatherMarkers({ wxData, focus }) {
+  return CITIES.map(c => {
+    const w = wxData?.[c.id]
+    const icon = cityIcon({
+      color: w ? tempColor(w.temp) : PALETTE.muted,
+      name: c.name,
+      text: w ? `${w.temp}°` : '–',
+      picked: focus?.id === `city-${c.id}`,
+    })
+    return (
+      <Marker key={c.id} position={[c.lat, c.lng]} icon={icon}>
+        <Popup>
+          <h3 className="mapPopupTitle">{c.name}</h3>
+          <dl>
+            <PopupRow label="Temperature">{w ? `${w.temp}°C` : '—'}</PopupRow>
+            <PopupRow label="Conditions">{w ? sentenceCase(w.description) : '—'}</PopupRow>
+            <PopupRow label="Humidity">{w ? `${w.humidity}%` : '—'}</PopupRow>
+            <PopupRow label="Wind">{w ? `${w.wind} m/s` : '—'}</PopupRow>
+          </dl>
+        </Popup>
+      </Marker>
+    )
+  })
+}
+
+function TrafficLines({ roads, focus }) {
+  const pickedRoad = focus?.id.startsWith('road-') ? focus.id : null
+
+  return roads.map(describeRoad).filter(road => road.path).map(road => {
+    // While one road is picked the others step back.
+    const dim = pickedRoad && pickedRoad !== `road-${road.code}` ? 0.25 : 1
+    return (
+      <Fragment key={road.code}>
+        {/* A dark casing keeps the line clear of the basemap's own roads. */}
+        <Polyline positions={road.path} pathOptions={{ color: INK, weight: 9, opacity: dim }}>
+          <Popup>
+            <h3 className="mapPopupTitle">{road.label}</h3>
+            <dl>
+              <PopupRow label="State">{road.state.label}</PopupRow>
+              <PopupRow label="Source">Simulated</PopupRow>
+            </dl>
+          </Popup>
+        </Polyline>
+        <Polyline
+          positions={road.path}
+          pathOptions={{ color: road.state.color, weight: 4, opacity: 0.3 * dim }}
+          interactive={false}
+        />
+        {/* Dashes that travel along the road at a speed matching its state. */}
+        <Polyline
+          positions={road.path}
+          pathOptions={{ className: `flowRoad flow--${road.state.key}`, color: road.state.color, weight: 4, opacity: dim }}
+          interactive={false}
+        />
+      </Fragment>
+    )
+  })
+}
+
+function note(activeSection, quakes) {
+  if (activeSection === 'seismic' && quakes) {
+    return `${quakes.length} events in 30 days · larger circles are stronger`
+  }
+  if (activeSection === 'aqi') return 'Larger discs mean a higher index'
+  if (activeSection === 'traffic') return 'Roads drawn schematically · states are simulated'
+  return null
+}
+
+/**
+ * Map of Romania showing the markers and legend of the active section.
+ * focus: the row picked in the panel ({ id, points } or null), which the map flies to.
+ */
+export default function MapView({ activeSection, quakes, aqiData, wxData, roads, focus }) {
+  const layer = LAYERS[activeSection]
+  const caption = note(activeSection, quakes)
+  const spot = focus?.points.length === 1 ? focus.points[0] : null
+
+  return (
+    <figure className="stage" aria-label={`Map of Romania: ${layer.title}`}>
+      <div className="mapCanvas">
+        <MapContainer
+          center={ROMANIA.getCenter()}
+          zoom={6}
+          zoomSnap={0}
+          minZoom={4.5}
+          maxZoom={12}
+          maxBounds={PAN_LIMIT}
+          maxBoundsViscosity={1.0}
+          scrollWheelZoom={fixedLayout()}
+          zoomControl={false}
+          attributionControl={false}
+          dragging={!L.Browser.mobile}
+          style={{ width: '100%', height: '100%' }}
+        >
+          <TileLayer className="basemap" url={BASEMAP_URL} maxNativeZoom={16} attribution={BASEMAP_ATTRIBUTION} />
+          {/* City sections name the places themselves, so the basemap labels would only repeat them. */}
+          {!layer.ownLabels && <TileLayer className="basemapLabels" url={LABELS_URL} maxNativeZoom={16} />}
+          <AttributionControl prefix={LEAFLET_CREDIT} />
+          <ZoomControl position="topright" />
+          <Camera focus={focus} />
+
+          {activeSection === 'seismic' && quakes && <EarthquakeMarkers quakes={quakes} />}
+          {activeSection === 'aqi'     && <AqiMarkers aqiData={aqiData} focus={focus} />}
+          {activeSection === 'weather' && <WeatherMarkers wxData={wxData} focus={focus} />}
+          {activeSection === 'traffic' && roads && <TrafficLines roads={roads} focus={focus} />}
+
+          {/* Target ring on the place picked in the panel. */}
+          {spot && (
+            <Marker
+              key={focus.id}
+              position={spot}
+              icon={htmlIcon('pinIcon', '<span class="target"></span>')}
+              interactive={false}
+              keyboard={false}
+            />
+          )}
+        </MapContainer>
+        <div className="mapVignette" aria-hidden="true" />
       </div>
-    </div>
+
+      <figcaption className="legend" key={activeSection}>
+        <span className="legendTitle label">{layer.title}</span>
+        <ul className="legendItems">
+          {layer.legend.map(item => (
+            <li key={item.label}><Swatch color={item.color} />{item.label}</li>
+          ))}
+        </ul>
+        {caption && <span className="legendNote">{caption}</span>}
+      </figcaption>
+    </figure>
   )
 }

@@ -1,61 +1,132 @@
-import { useState, useEffect } from 'react'
-import { formatTime, formatUpdated } from '../utils/time'
+import { useLayoutEffect, useRef } from 'react'
+import SourceBadge from './SourceBadge'
+import Swatch from './Swatch'
+import { aqiColor, magColor, tempColor } from '../utils/colors'
 import '../styles/TopBar.css'
 
-const STATUS_TITLE = {
-  live:    'Source online — real data',
-  demo:    'Source unavailable — demo values',
-  error:   'Source offline',
-  loading: 'Connecting…',
+const SOURCES = [
+  ['seismic', 'Quakes'],
+  ['aqi',     'Air'],
+  ['weather', 'Weather'],
+]
+
+const timeFormat = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit' })
+
+// Headline figure shown beside each tab label; null while there is nothing to show.
+function seismicFigure({ data }) {
+  const latest = data?.[0]
+  return latest ? { text: `M ${latest.magnitude.toFixed(1)}`, color: magColor(latest.magnitude) } : null
 }
 
-function SourceStatus({ label, status }) {
+function aqiFigure({ data }) {
+  const value = data?.bucuresti
+  return value != null ? { text: String(value), color: aqiColor(value) } : null
+}
+
+function weatherFigure({ data }) {
+  const now = data?.bucuresti
+  return now ? { text: `${now.temp}°`, color: tempColor(now.temp) } : null
+}
+
+function trafficFigure({ data }) {
+  if (!data) return null
+  const slowed = data.filter(road => road.status !== 'FREE').length
+  return { text: `${slowed}/${data.length}` }
+}
+
+/** Ring-and-epicentre mark; the same drawing as the favicon. */
+function BrandMark() {
   return (
-    <div className="tbOnlineItem" title={STATUS_TITLE[status]}>
-      <span className={`tbODot tbODot--${status}`} />{label}
-    </div>
+    <svg className="brandMark" viewBox="0 0 32 32" aria-hidden="true">
+      <circle className="brandRing brandRing--outer" cx="16" cy="16" r="12" />
+      <circle className="brandRing" cx="16" cy="16" r="7" />
+      <circle className="brandCore" cx="16" cy="16" r="2.75" />
+    </svg>
   )
 }
 
 /**
+ * Brand, section switcher and the state of each live source.
+ *
  * status:    { seismic, aqi, weather } each one of 'live' | 'demo' | 'error' | 'loading'
  * updatedAt: timestamp (ms) of the most recent successful data fetch, or 0
+ * busy:      true while any source is being fetched
  */
-export default function TopBar({ status, updatedAt }) {
-  const [clock, setClock] = useState(formatTime)
-  const updated = updatedAt ? formatUpdated(new Date(updatedAt)) : ''
+export default function TopBar({ active, onSelect, status, updatedAt, busy, earthquakes, aqi, weather, traffic }) {
+  const navRef = useRef(null)
 
-  useEffect(() => {
-    const id = setInterval(() => setClock(formatTime()), 1000)
-    return () => clearInterval(id)
-  }, [])
+  const tabs = [
+    { id: 'seismic',    label: 'Earthquakes', figure: seismicFigure(earthquakes) },
+    { id: 'aqi',        label: 'Air quality', figure: aqiFigure(aqi) },
+    { id: 'weather',    label: 'Weather',     figure: weatherFigure(weather) },
+    { id: 'traffic',    label: 'Traffic',     figure: trafficFigure(traffic) },
+    { id: 'indicators', label: 'Indicators',  figure: null },
+  ]
+
+  // The highlight is one element that slides under the current tab. Its
+  // position is measured after every render, because tab widths change as
+  // figures arrive, and again whenever the bar is resized.
+  useLayoutEffect(() => {
+    const nav = navRef.current
+    const place = () => {
+      const current = nav.querySelector('[aria-current="true"]')
+      if (!current) return
+      nav.style.setProperty('--tab-x', `${current.offsetLeft}px`)
+      nav.style.setProperty('--tab-w', `${current.offsetWidth}px`)
+    }
+    place()
+    const observer = new ResizeObserver(place)
+    observer.observe(nav)
+    return () => observer.disconnect()
+  })
 
   return (
-    <header className="topbar boot-fade">
-      <div className="tbBrand">
-        <div className="tbLogoMark">
-          <span className="dot" />
-        </div>
-        <div className="tbLogoText">
-          <span className="tbLogo">RoStats</span>
-          <span className="tbTagline">National Monitoring System</span>
-        </div>
+    <header className="topbar">
+      <div className="brand">
+        <BrandMark />
+        <h1 className="brandName display">RoStats</h1>
+        <p className="brandSub">Romania, live</p>
       </div>
-      <div className="tbDiv" />
-      <div className="tbOnlineIndicators">
-        <SourceStatus label="SEISMIC" status={status.seismic} />
-        <SourceStatus label="AQI"     status={status.aqi} />
-        <SourceStatus label="WEATHER" status={status.weather} />
+
+      <nav className="nav" aria-label="Sections" ref={navRef}>
+        <span className="navGlider" aria-hidden="true" />
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            type="button"
+            className="navTab"
+            aria-current={active === tab.id ? 'true' : undefined}
+            onClick={() => onSelect(tab.id)}
+          >
+            <span className="navLabel">{tab.label}</span>
+            {tab.figure && (
+              <span className="navFigure">
+                {tab.figure.color && <Swatch color={tab.figure.color} />}
+                {tab.figure.text}
+              </span>
+            )}
+          </button>
+        ))}
+      </nav>
+
+      <div className="topMeta">
+        <dl className="topSources">
+          {SOURCES.map(([id, name]) => (
+            <div className="topSource" key={id}>
+              <dt>{name}</dt>
+              <dd><SourceBadge source={status[id]} /></dd>
+            </div>
+          ))}
+        </dl>
+        {updatedAt > 0 && (
+          <p className="topUpdated">
+            Updated <time dateTime={new Date(updatedAt).toISOString()}>{timeFormat.format(updatedAt)}</time>
+          </p>
+        )}
       </div>
-      <div className="tbSpacer" />
-      <div className="tbStatus">
-        <span className="upd">{updated}</span>
-        <div className="liveBadge">
-          <div className="liveRing" />
-          LIVE
-        </div>
-        <span className="clock">{clock}</span>
-      </div>
+
+      {/* A line that runs along the bar only while a source is being fetched. */}
+      {busy && <span className="topProgress" role="status" aria-label="Refreshing data" />}
     </header>
   )
 }
