@@ -1,0 +1,109 @@
+/* Full-width board for the section without geography. The faint dot grid
+   stands where the map would be, like an empty plotting sheet. */
+.board {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background:
+    radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1.5px) 0 0 / 24px 24px,
+    var(--bg);
+}
+
+.boardInner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s6);
+  width: min(1120px, 100%);
+  margin-inline: auto;
+  padding: var(--s7) var(--s5);
+}
+
+.boardInner > * { animation: rise 0.5s var(--ease) both; }
+
+.board .secTop {
+  justify-content: flex-start;
+  gap: var(--s5);
+}
+
+/* Six figures in one ruled sheet rather than six separate cards. */
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  animation: none;
+}
+
+.tile {
+  padding: var(--s5) var(--s5) var(--s6);
+  background: var(--surface);
+  animation: rise 0.6s var(--ease) both;
+}
+
+.tileValue {
+  display: flex;
+  align-items: baseline;
+  margin-top: var(--s5);
+  font-size: clamp(2.5rem, 4.6vw, var(--fs-display));
+}
+
+.tileUnit {
+  margin-left: var(--s2);
+  font-size: var(--fs-heading);
+  font-stretch: 100%;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-3);
+}
+
+.tileChange {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s1) var(--s4);
+  margin-top: var(--s4);
+  font-size: var(--fs-small);
+  color: var(--text-2);
+}
+
+.tileVerdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+}
+
+.tileVerdict svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.board .note { max-width: 62ch; }
+
+@media (max-width: 960px) {
+  .board {
+    flex: 1;
+    overflow: visible;
+  }
+
+  .boardInner {
+    gap: var(--s5);
+    padding: var(--s5) var(--s4);
+  }
+
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 520px) {
+  .tiles { grid-template-columns: minmax(0, 1fr); }
+  .tile { padding: var(--s4) var(--s4) var(--s5); }
+  .tileValue { margin-top: var(--s3); }
+}
