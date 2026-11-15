@@ -112,7 +112,7 @@ function trafficScene() {
         lengths.push(lengths[i - 1] + Math.hypot(points[i].x - points[i - 1].x, points[i].y - points[i - 1].y))
       }
       const total = lengths.at(-1)
-      const dim = picked && picked !== `road-${road.code}` ? 0.2 : 1
+      const dim = picked && picked !== `road-${road.id}` ? 0.2 : 1
       const offset = ((now / 1000) * flow.speed) % flow.gap
 
       for (let s = offset; s < total; s += flow.gap) {

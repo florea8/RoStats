@@ -1,7 +1,7 @@
 import { describeRoad } from '../traffic'
 import Odometer from '../Odometer'
 import FocusRow from '../FocusRow'
-import SectionHeader from './SectionHeader'
+import SectionHeader, { SectionSkeleton } from './SectionHeader'
 
 /** A short stretch of road whose dashes move as fast as its traffic does. */
 function Flow({ state }) {
@@ -14,13 +14,23 @@ function Flow({ state }) {
 }
 
 export default function TrafficSection({ traffic, focus, onFocus }) {
-  const { data, source } = traffic
+  const { data, source, isLoading, isError } = traffic
+  const live = source === 'live'
   const roads = data?.map(describeRoad)
   const slowed = roads?.filter(road => road.state.key !== 'FREE').length
 
   return (
     <>
-      <SectionHeader title="Traffic" subtitle="Five main roads · estimated" source={source} />
+      <SectionHeader
+        title="Traffic"
+        subtitle={live ? 'Main roads · measured speeds' : 'Main roads · estimated'}
+        source={isError ? 'error' : source}
+        href={live ? 'https://developer.tomtom.com/traffic-api' : undefined}
+        linkLabel={live ? 'TomTom' : undefined}
+      />
+
+      {isLoading && <SectionSkeleton label="Loading traffic" />}
+      {isError && <p className="stateMsg" role="alert">The traffic API could not be reached.</p>}
 
       {roads && (
         <div className="hero hero--stacked" data-spot>
@@ -35,7 +45,7 @@ export default function TrafficSection({ traffic, focus, onFocus }) {
           <div className="segments" aria-hidden="true">
             {roads.map((road, i) => (
               <span
-                key={road.code}
+                key={road.id}
                 className="segment"
                 style={{ background: road.state.color, animationDelay: `${i * 70}ms` }}
               />
@@ -44,10 +54,13 @@ export default function TrafficSection({ traffic, focus, onFocus }) {
         </div>
       )}
 
-      <p className="note">
-        These are not measurements. Each road is given a typical state for the time of day
-        (rush hour, daytime, night); no live traffic source is connected.
-      </p>
+      {source && (
+        <p className="note">
+          {live
+            ? 'Speeds measured by TomTom on a busy stretch of each road, against the usual speed there when the road is clear.'
+            : 'These are not measurements. Live traffic is unavailable right now, so each road shows its typical state for the time of day (rush hour, daytime, night).'}
+        </p>
+      )}
 
       {roads && (
         <section className="list">
@@ -58,15 +71,20 @@ export default function TrafficSection({ traffic, focus, onFocus }) {
           <ol className="rows">
             {roads.map(road => (
               <FocusRow
-                key={road.code}
-                id={`road-${road.code}`}
+                key={road.id}
+                id={`road-${road.id}`}
                 points={road.path ?? []}
                 focus={focus}
                 onFocus={onFocus}
                 className="row--road"
               >
                 <span className="roadCode">{road.code}</span>
-                <span className="rowTitle">{road.label.slice(road.code.length).trim()}</span>
+                <span className="rowMain">
+                  <span className="rowTitle">{road.label.slice(road.code.length).trim()}</span>
+                  {road.speed != null && (
+                    <span className="rowSub">{road.speed} km/h · usual {road.freeFlow}</span>
+                  )}
+                </span>
                 <Flow state={road.state} />
                 <span className="rowLevel">{road.state.label}</span>
               </FocusRow>

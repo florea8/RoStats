@@ -245,9 +245,9 @@ function TrafficLines({ roads, focus }) {
 
   return roads.map(describeRoad).filter(road => road.path).map(road => {
     // While one road is picked the others step back.
-    const dim = pickedRoad && pickedRoad !== `road-${road.code}` ? 0.25 : 1
+    const dim = pickedRoad && pickedRoad !== `road-${road.id}` ? 0.25 : 1
     return (
-      <Fragment key={road.code}>
+      <Fragment key={road.id}>
         {/* A dark casing keeps the line clear of the basemap's own roads. */}
         <Polyline positions={road.path} pathOptions={{ color: INK, weight: 9, opacity: dim }}>
           <Popup>
@@ -268,12 +268,16 @@ function TrafficLines({ roads, focus }) {
   })
 }
 
-function note(activeSection, quakes) {
+function note(activeSection, quakes, roads) {
   if (activeSection === 'seismic' && quakes) {
     return `${quakes.length} events in 30 days · larger circles are stronger`
   }
   if (activeSection === 'aqi') return 'Larger discs mean a higher index'
-  if (activeSection === 'traffic') return 'Roads drawn schematically · states are simulated'
+  if (activeSection === 'traffic') {
+    // Measured roads carry speeds; typical states for the time of day do not.
+    const measured = roads?.some(road => road.speed != null)
+    return `Roads drawn schematically · states are ${measured ? 'measured by TomTom' : 'simulated'}`
+  }
   return null
 }
 
@@ -285,7 +289,7 @@ function note(activeSection, quakes) {
  */
 export default function MapView({ activeSection, quakes, quakesAt, aqiData, wxData, roads, focus, replayId }) {
   const layer = LAYERS[activeSection]
-  const caption = note(activeSection, quakes)
+  const caption = note(activeSection, quakes, roads)
   // A picked city is marked by its own tag, so the target ring is for earthquakes only.
   const spot = activeSection === 'seismic' && focus?.points.length === 1 ? focus.points[0] : null
 

@@ -8,6 +8,7 @@ const { getAQI } = require('./lib/airQuality');
 const { getEarthquakes } = require('./lib/earthquakes');
 const { getAqiHistory, getEarthquakeHistory } = require('./lib/history');
 const { getIndicators } = require('./lib/indicators');
+const { getTraffic } = require('./lib/traffic');
 
 const schemas = {
   weather:     z.object({ city: z.enum(CITY_IDS).optional() }),
@@ -60,6 +61,14 @@ async function earthquakes(_req, res) {
   }
 }
 
+// Each refresh makes eight TomTom requests. Caching live readings for 30 minutes
+// keeps that near 11,500 a month, inside TomTom's free allowance of 20,000.
+async function traffic(_req, res) {
+  const { data, source } = await getTraffic();
+  cacheFor(res, source === 'live' ? 1800 : 300);
+  res.json({ ok: true, data, source });
+}
+
 // Eurostat publishes monthly at most, so six hours of CDN caching loses nothing.
 async function indicators(_req, res) {
   const { data, source } = await getIndicators();
@@ -103,4 +112,4 @@ function getOnly(handler) {
   };
 }
 
-module.exports = { weather, aqi, earthquakes, indicators, aqiHistory, earthquakeHistory, health, getOnly };
+module.exports = { weather, aqi, earthquakes, indicators, traffic, aqiHistory, earthquakeHistory, health, getOnly };
