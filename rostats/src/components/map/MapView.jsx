@@ -23,6 +23,7 @@ const ROMANIA = L.latLngBounds([43.6, 20.2], [48.3, 29.8])
 const PAN_LIMIT = [[38.5, 10.0], [53.0, 40.0]]
 const INK = PALETTE.ink
 const MAX_QUAKE_MARKERS = 150
+const INTRO_ZOOM_OUT = 1.6   // how far above the country the opening flight starts
 
 // Esri Dark Gray Canvas: a keyless, quiet basemap with labels on a separate layer.
 const ESRI_TILES = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas'
@@ -56,18 +57,21 @@ function crispZoom(zoom) {
   return Math.max(...options.filter(z => z <= zoom))
 }
 
-/** Center and zoom that show the whole country, clear of the legend at the bottom. */
+/** Center and zoom that show the whole country, clear of the legend (bottom on wide stages, top on narrow ones). */
 function countryView(map) {
   const small = map.getSize().x < 600
   const side = small ? 12 : 40
-  const top = small ? 12 : 40
-  const bottom = small ? 68 : 96
+  const top = small ? 72 : 40
+  const bottom = small ? 48 : 96
   const zoom = crispZoom(map.getBoundsZoom(ROMANIA, false, L.point(side * 2, top + bottom)))
   const middle = map.project(ROMANIA.getSouthWest(), zoom)
     .add(map.project(ROMANIA.getNorthEast(), zoom))
     .divideBy(2)
   return { center: map.unproject(middle.add([0, (bottom - top) / 2]), zoom), zoom }
 }
+
+// The opening flight plays once per page load, not every time the map returns.
+let introPlayed = false
 
 /**
  * Moves the map: the whole country by default, a flight to the row picked
@@ -89,8 +93,22 @@ function Camera({ focus }) {
       map.setView(center, zoom, { animate: false })
     }
     fit()
+    // First view of the page: start high above the region and descend onto the country.
+    if (!introPlayed && !reducedMotion()) {
+      const { center, zoom } = countryView(map)
+      map.setView(center, Math.max(map.getMinZoom(), zoom - INTRO_ZOOM_OUT), { animate: false })
+      map.flyTo(center, zoom, { duration: 2.4, easeLinearity: 0.2 })
+    }
+    introPlayed = true
     map.on('resize', fit)
-    return () => map.off('resize', fit)
+    // Leaflet only hears window resizes; the stage can also change size on its
+    // own (layout switch, rotation), so its box is watched directly.
+    const observer = new ResizeObserver(() => map.invalidateSize())
+    observer.observe(map.getContainer())
+    return () => {
+      observer.disconnect()
+      map.off('resize', fit)
+    }
   }, [map])
 
   useEffect(() => {
@@ -101,7 +119,9 @@ function Camera({ focus }) {
       map.flyTo(points[0], Math.max(map.getZoom(), 8), { animate, duration: 1.1 })
     } else if (points.length > 1) {
       away.current = true
-      map.flyToBounds(L.latLngBounds(points), { animate, duration: 1.1, padding: [96, 96], maxZoom: 9 })
+      // Room around a road, less of it where the stage is small.
+      const room = map.getSize().x < 600 ? 40 : 96
+      map.flyToBounds(L.latLngBounds(points), { animate, duration: 1.1, padding: [room, room], maxZoom: 9 })
     } else if (away.current) {
       away.current = false
       const { center, zoom } = countryView(map)
