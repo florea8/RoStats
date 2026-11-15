@@ -15,7 +15,7 @@ export default function WeatherSection({ weather, focus, onFocus }) {
     <>
       <SectionHeader
         title="Weather"
-        subtitle="Current conditions · six cities"
+        subtitle={`Current conditions · ${CITIES.length} cities`}
         source={isError ? 'error' : source}
         href="https://open-meteo.com/en/docs"
         linkLabel="Open-Meteo"

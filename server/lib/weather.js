@@ -30,6 +30,15 @@ const DEMO_WEATHER = {
   iasi:      { temp: 11, feels_like: 9,  humidity: 70, description: 'overcast',      wind: 6 },
   constanta: { temp: 12, feels_like: 10, humidity: 78, description: 'overcast',      wind: 12 },
   brasov:    { temp: 8,  feels_like: 6,  humidity: 80, description: 'fog',           wind: 3 },
+  craiova:   { temp: 15, feels_like: 13, humidity: 60, description: 'mainly clear',  wind: 4 },
+  galati:    { temp: 13, feels_like: 11, humidity: 68, description: 'partly cloudy', wind: 6 },
+  oradea:    { temp: 14, feels_like: 12, humidity: 62, description: 'partly cloudy', wind: 3 },
+  ploiesti:  { temp: 13, feels_like: 11, humidity: 66, description: 'overcast',      wind: 4 },
+  braila:    { temp: 13, feels_like: 11, humidity: 70, description: 'partly cloudy', wind: 6 },
+  arad:      { temp: 15, feels_like: 13, humidity: 58, description: 'clear sky',     wind: 3 },
+  pitesti:   { temp: 12, feels_like: 10, humidity: 68, description: 'light drizzle', wind: 3 },
+  bacau:     { temp: 10, feels_like: 8,  humidity: 74, description: 'overcast',      wind: 5 },
+  sibiu:     { temp: 9,  feels_like: 7,  humidity: 76, description: 'mainly clear',  wind: 2 },
 };
 
 /** Current conditions in the shape the API returns, or null if the reading is incomplete. */

@@ -11,8 +11,9 @@ const OPEN_METEO_URL =
 
 // Typical values, used only when Open-Meteo is unreachable (source: 'demo').
 const DEMO_AQI = {
-  bucuresti: 42, cluj: 31, timisoara: 27,
-  iasi: 58, constanta: 36, brasov: 22,
+  bucuresti: 42, cluj: 31, iasi: 58, constanta: 36, timisoara: 27,
+  brasov: 22, craiova: 47, galati: 44, oradea: 29, ploiesti: 51,
+  braila: 40, arad: 30, pitesti: 38, bacau: 35, sibiu: 24,
 };
 
 async function fetchLiveAQI() {

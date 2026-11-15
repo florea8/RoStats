@@ -1,8 +1,17 @@
 [
   { "id": "bucuresti", "name": "Bucharest",   "short": "BUC", "lat": 44.4268, "lng": 26.1025 },
   { "id": "cluj",      "name": "Cluj-Napoca", "short": "CLJ", "lat": 46.7712, "lng": 23.6236 },
-  { "id": "timisoara", "name": "Timișoara",   "short": "TIM", "lat": 45.7489, "lng": 21.2087 },
   { "id": "iasi",      "name": "Iași",        "short": "IAS", "lat": 47.1585, "lng": 27.6014 },
   { "id": "constanta", "name": "Constanța",   "short": "CTN", "lat": 44.1733, "lng": 28.6383 },
-  { "id": "brasov",    "name": "Brașov",      "short": "BRV", "lat": 45.6427, "lng": 25.5887 }
+  { "id": "timisoara", "name": "Timișoara",   "short": "TIM", "lat": 45.7489, "lng": 21.2087 },
+  { "id": "brasov",    "name": "Brașov",      "short": "BRV", "lat": 45.6427, "lng": 25.5887 },
+  { "id": "craiova",   "name": "Craiova",     "short": "CRA", "lat": 44.3167, "lng": 23.8000 },
+  { "id": "galati",    "name": "Galați",      "short": "GAL", "lat": 45.4369, "lng": 28.0503 },
+  { "id": "oradea",    "name": "Oradea",      "short": "ORA", "lat": 47.0458, "lng": 21.9183 },
+  { "id": "ploiesti",  "name": "Ploiești",    "short": "PLO", "lat": 44.9500, "lng": 26.0167 },
+  { "id": "braila",    "name": "Brăila",      "short": "BRL", "lat": 45.2715, "lng": 27.9743 },
+  { "id": "arad",      "name": "Arad",        "short": "ARD", "lat": 46.1833, "lng": 21.3167 },
+  { "id": "pitesti",   "name": "Pitești",     "short": "PIT", "lat": 44.8500, "lng": 24.8667 },
+  { "id": "bacau",     "name": "Bacău",       "short": "BAC", "lat": 46.5672, "lng": 26.9138 },
+  { "id": "sibiu",     "name": "Sibiu",       "short": "SIB", "lat": 45.8000, "lng": 24.1500 }
 ]
