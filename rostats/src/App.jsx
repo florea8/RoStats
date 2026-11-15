@@ -14,6 +14,8 @@ export default function App() {
   const [activeSection, setActiveSection] = useState('seismic')
   // The row picked in the panel, which the map flies to: { id, points } or null.
   const [focus, setFocus] = useState(null)
+  // Counts the replays of the 30 days of earthquakes; a new number starts one.
+  const [replayId, setReplayId] = useState(0)
 
   // Surfaces marked data-spot are lit under the pointer: its position is
   // handed to CSS, which draws the light.
@@ -67,6 +69,8 @@ export default function App() {
           <MapView
             activeSection={activeSection}
             quakes={earthquakes.data}
+            quakesAt={earthquakes.dataUpdatedAt}
+            replayId={replayId}
             aqiData={aqi.data}
             wxData={weather.data}
             roads={traffic.data}
@@ -80,6 +84,8 @@ export default function App() {
             traffic={traffic}
             focus={focus}
             onFocus={setFocus}
+            replayId={replayId}
+            onReplay={() => setReplayId(id => id + 1)}
           />
         </>
       )}

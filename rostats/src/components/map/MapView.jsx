@@ -15,13 +15,13 @@ import { nearCity } from '../geo'
 import { sentenceCase } from '../text'
 import { TRAFFIC_STATES, describeRoad } from '../traffic'
 import Swatch from '../Swatch'
+import { REPLAY_STEPS, quakeMoment } from '../replay'
 import '../../styles/Map.css'
 
 const ROMANIA = L.latLngBounds([43.6, 20.2], [48.3, 29.8])
 const PAN_LIMIT = [[38.5, 10.0], [53.0, 40.0]]
 const INK = PALETTE.ink
 const MAX_QUAKE_MARKERS = 150
-const POP_STEPS = 12   // quake markers appear in this many waves, oldest first
 
 // Esri Dark Gray Canvas: a keyless, quiet basemap with labels on a separate layer.
 const ESRI_TILES = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas'
@@ -134,20 +134,22 @@ function PopupRow({ label, children }) {
   return <div className="mapPopupRow"><dt>{label}</dt><dd>{children}</dd></div>
 }
 
-function EarthquakeMarkers({ quakes }) {
-  // Oldest first, so the most recent events are drawn on top and appear last.
+function EarthquakeMarkers({ quakes, quakesAt, replayId }) {
+  // Oldest first, so the most recent events are drawn on top.
   const shown = quakes.slice(0, MAX_QUAKE_MARKERS).reverse()
   const latest = quakes[0]
 
   return (
     <>
-      {shown.map((q, i) => (
+      {shown.map(q => (
+        // Keyed by the replay as well, so every replay makes the markers appear again,
+        // each at its moment in the 30 days (see replay.js and the .quake--N rules).
         <CircleMarker
-          key={q.id}
+          key={`${replayId}-${q.id}`}
           center={[q.lat, q.lng]}
           radius={markerRadius(q.magnitude)}
           pathOptions={{
-            className: `quake quake--${Math.floor((i / shown.length) * POP_STEPS)}`,
+            className: `quake quake--${Math.min(REPLAY_STEPS - 1, Math.floor(quakeMoment(q, quakesAt) * REPLAY_STEPS))}`,
             color: INK,
             weight: 1.5,
             fillColor: magColor(q.magnitude),
@@ -273,9 +275,11 @@ function note(activeSection, quakes) {
 
 /**
  * Map of Romania showing the markers and legend of the active section.
- * focus: the row picked in the panel ({ id, points } or null), which the map flies to.
+ * focus:    the row picked in the panel ({ id, points } or null), which the map flies to
+ * quakesAt: time the earthquakes were fetched (ms), the "now" of the 30-day replay
+ * replayId: changes whenever the replay is started again
  */
-export default function MapView({ activeSection, quakes, aqiData, wxData, roads, focus }) {
+export default function MapView({ activeSection, quakes, quakesAt, aqiData, wxData, roads, focus, replayId }) {
   const layer = LAYERS[activeSection]
   const caption = note(activeSection, quakes)
   const spot = focus?.points.length === 1 ? focus.points[0] : null
@@ -304,7 +308,9 @@ export default function MapView({ activeSection, quakes, aqiData, wxData, roads,
           <ZoomControl position="topright" />
           <Camera focus={focus} />
 
-          {activeSection === 'seismic' && quakes && <EarthquakeMarkers quakes={quakes} />}
+          {activeSection === 'seismic' && quakes && (
+            <EarthquakeMarkers quakes={quakes} quakesAt={quakesAt} replayId={replayId} />
+          )}
           {activeSection === 'aqi'     && <AqiMarkers aqiData={aqiData} focus={focus} />}
           {activeSection === 'weather' && <WeatherMarkers wxData={wxData} focus={focus} />}
           {activeSection === 'traffic' && roads && <TrafficLines roads={roads} focus={focus} />}

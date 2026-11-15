@@ -23,7 +23,7 @@ function Waves({ color }) {
   )
 }
 
-export default function SeismicSection({ earthquakes, focus, onFocus }) {
+export default function SeismicSection({ earthquakes, focus, onFocus, replayId, onReplay }) {
   const { data: quakes, isLoading, isError, dataUpdatedAt } = earthquakes
   const latest = quakes?.[0]
   const day = quakes ? summarize24h(quakes, dataUpdatedAt) : null
@@ -76,7 +76,7 @@ export default function SeismicSection({ earthquakes, focus, onFocus }) {
         </dl>
       )}
 
-      {quakes?.length > 0 && <Seismogram quakes={quakes} now={dataUpdatedAt} />}
+      {quakes?.length > 0 && <Seismogram quakes={quakes} now={dataUpdatedAt} replayId={replayId} onReplay={onReplay} />}
 
       {quakes?.length > 0 && (
         <section className="list">

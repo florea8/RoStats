@@ -193,7 +193,6 @@
   gap: var(--s4);
 }
 
-.seismoPeak,
 .listHint {
   font-size: var(--fs-small);
   color: var(--text-3);
@@ -222,22 +221,72 @@
   stroke-linecap: round;
   transform-box: fill-box;
   transform-origin: center;
-  animation: growY 0.6s var(--ease-back) both;
+  animation: growY 0.5s var(--ease-back) both;
 }
 
-/* The pen: where the trace has got to. */
-.seismoNow {
+/* The pen crosses the 30 days once, drawing the strokes it passes, and
+   rests at "now". Its line spans the strip while it travels. */
+.seismoPen {
   position: absolute;
   top: 50%;
-  right: -3px;
+  left: 100%;
   width: 7px;
   height: 7px;
-  margin-top: -3.5px;
+  margin: -3.5px 0 0 -3.5px;
   border-radius: 50%;
   background: var(--text);
+  animation: penCross linear both;
 }
 
-.seismoNow::after {
+.seismoPen::before {
+  content: '';
+  position: absolute;
+  top: -35px;
+  left: 3px;
+  width: 1px;
+  height: 76px;
+  background: var(--text);
+  opacity: 0;
+  animation: penLine linear both;
+  animation-duration: inherit;
+}
+
+@keyframes penCross {
+  from { left: 0; }
+  to   { left: 100%; }
+}
+
+@keyframes penLine {
+  0%, 96% { opacity: 0.45; }
+  100%    { opacity: 0; }
+}
+
+.replayBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 99px;
+  font-size: var(--fs-small);
+  font-weight: 500;
+  color: var(--text-2);
+  transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+}
+
+.replayBtn:hover {
+  background: var(--surface-2);
+  border-color: var(--text);
+  color: var(--text);
+}
+
+.replayBtn svg {
+  width: 9px;
+  height: 9px;
+  fill: currentColor;
+}
+
+.seismoPen::after {
   content: '';
   position: absolute;
   inset: 0;
