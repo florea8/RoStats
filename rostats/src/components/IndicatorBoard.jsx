@@ -1,4 +1,5 @@
 import CountUp from './CountUp'
+import DotField from './DotField'
 import Footer from './Footer'
 import SectionHeader from './sections/SectionHeader'
 import { INDICATORS } from './sections/indicators'
@@ -32,14 +33,16 @@ function Verdict({ favourable }) {
 export default function IndicatorBoard() {
   return (
     <main className="board" aria-labelledby="section-title">
-      <div className="boardInner">
-        <SectionHeader
-          title="National indicators"
-          subtitle="Economy · National Institute of Statistics"
-          source="static"
-          href="https://insse.ro"
-          linkLabel="INS"
-        />
+      <DotField />
+      <div className="boardScroll">
+        <div className="boardInner">
+          <SectionHeader
+            title="National indicators"
+            subtitle="Economy · National Institute of Statistics"
+            source="static"
+            href="https://insse.ro"
+            linkLabel="INS"
+          />
 
         <dl className="tiles">
           {INDICATORS.map((indicator, i) => {
@@ -62,12 +65,13 @@ export default function IndicatorBoard() {
           })}
         </dl>
 
-        <p className="note">
-          Copied by hand from INS publications. These figures do not update on their own
-          and may be older than the latest release.
-        </p>
+          <p className="note">
+            Copied by hand from INS publications. These figures do not update on their own
+            and may be older than the latest release.
+          </p>
+        </div>
+        <Footer />
       </div>
-      <Footer />
     </main>
   )
 }

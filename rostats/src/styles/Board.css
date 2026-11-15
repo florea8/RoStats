@@ -1,12 +1,36 @@
-/* Full-width board for the section without geography. The faint dot grid
-   stands where the map would be, like an empty plotting sheet. */
+/* Full-width board for the section without geography. A field of dots
+   stands where the map would be, like an empty plotting sheet; it is drawn
+   on a canvas (DotField.jsx) so it can ripple and answer the pointer. */
 .board {
+  position: relative;
   display: flex;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.dotField {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.boardScroll {
+  position: relative;
+  display: flex;
+  flex: 1;
   flex-direction: column;
+  min-width: 0;
   overflow-y: auto;
-  background:
-    radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1.5px) 0 0 / 24px 24px,
-    var(--bg);
+}
+
+/* Without motion the canvas stays empty, so the grid comes from CSS. */
+@media (prefers-reduced-motion: reduce) {
+  .board {
+    background:
+      radial-gradient(circle, rgba(255, 255, 255, 0.08) 1px, transparent 1.5px) 0 0 / 26px 26px,
+      var(--bg);
+  }
 }
 
 .boardInner {
@@ -89,10 +113,8 @@
 .board .note { max-width: 62ch; }
 
 @media (max-width: 960px) {
-  .board {
-    flex: 1;
-    overflow: visible;
-  }
+  .board { flex: 1; }
+  .boardScroll { overflow: visible; }
 
   .boardInner {
     gap: var(--s5);
