@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import TopBar from './components/TopBar'
 import MapView from './components/map/MapView'
 import SectionDetail from './components/SectionDetail'
@@ -14,6 +14,20 @@ export default function App() {
   const [activeSection, setActiveSection] = useState('seismic')
   // The row picked in the panel, which the map flies to: { id, points } or null.
   const [focus, setFocus] = useState(null)
+
+  // Surfaces marked data-spot are lit under the pointer: its position is
+  // handed to CSS, which draws the light.
+  useEffect(() => {
+    const track = event => {
+      const surface = event.target.closest?.('[data-spot]')
+      if (!surface) return
+      const box = surface.getBoundingClientRect()
+      surface.style.setProperty('--spot-x', `${event.clientX - box.left}px`)
+      surface.style.setProperty('--spot-y', `${event.clientY - box.top}px`)
+    }
+    document.addEventListener('pointermove', track)
+    return () => document.removeEventListener('pointermove', track)
+  }, [])
 
   const earthquakes = useEarthquakes()
   const weather = useWeather()

@@ -1,7 +1,7 @@
 import { AQI_LEVELS, aqiColor, aqiTag } from '../../utils/colors'
 import { CITIES } from '../../data/cities'
 import { sentenceCase } from '../text'
-import CountUp from '../CountUp'
+import Odometer from '../Odometer'
 import FocusRow from '../FocusRow'
 import Swatch from '../Swatch'
 import SectionHeader, { SectionSkeleton } from './SectionHeader'
@@ -55,11 +55,11 @@ export default function AqiSection({ aqi, focus, onFocus }) {
       {isError && <p className="stateMsg" role="alert">The air quality API could not be reached.</p>}
 
       {now != null && (
-        <div className="hero hero--stacked">
+        <div className="hero hero--stacked" data-spot>
           <div className="heroText">
             <p className="label">Bucharest, now</p>
             <p className="heroFigure display">
-              <CountUp value={now} />
+              <Odometer value={now} />
               <span className="heroTag" style={{ color: aqiColor(now) }}>{sentenceCase(aqiTag(now))}</span>
             </p>
           </div>

@@ -106,6 +106,33 @@
   height: 96px;
 }
 
+/* Digits that roll into place (Odometer.jsx). Each strip holds 0–9 and is
+   moved up by the digit it shows. */
+.odo { display: inline-flex; }
+
+.odoDigit {
+  display: block;
+  height: 1em;
+  overflow: hidden;
+}
+
+.odoStrip {
+  display: block;
+  transform: translateY(calc(var(--digit) * -10%));
+  transition: transform 1s var(--ease);
+  animation: odoRoll 1.3s var(--ease) both;
+}
+
+.odoStrip > span {
+  display: block;
+  height: 1em;
+  line-height: 1em;
+}
+
+@keyframes odoRoll {
+  from { transform: translateY(0); }
+}
+
 /* Rings leaving the epicentre. */
 .waves { overflow: visible; }
 

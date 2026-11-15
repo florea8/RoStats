@@ -48,7 +48,7 @@ export default function IndicatorBoard() {
           {INDICATORS.map((indicator, i) => {
             const { sign, number, decimals } = parseValue(indicator.value)
             return (
-              <div className="tile" key={indicator.id} style={{ animationDelay: `${i * 60}ms` }}>
+              <div className="tile" data-spot key={indicator.id} style={{ animationDelay: `${i * 60}ms` }}>
                 <dt className="label">{indicator.label}</dt>
                 <dd>
                   <span className="tileValue display">

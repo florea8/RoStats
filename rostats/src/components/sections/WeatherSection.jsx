@@ -1,7 +1,7 @@
 import { tempColor } from '../../utils/colors'
 import { CITIES } from '../../data/cities'
 import { sentenceCase } from '../text'
-import CountUp from '../CountUp'
+import Odometer from '../Odometer'
 import FocusRow from '../FocusRow'
 import Swatch from '../Swatch'
 import WeatherGlyph from '../WeatherGlyph'
@@ -25,11 +25,11 @@ export default function WeatherSection({ weather, focus, onFocus }) {
       {isError && <p className="stateMsg" role="alert">The weather API could not be reached.</p>}
 
       {now && (
-        <div className="hero">
+        <div className="hero" data-spot>
           <div className="heroText">
             <p className="label">Bucharest, now</p>
             <p className="heroFigure display">
-              <CountUp value={now.temp} />
+              <Odometer value={now.temp} />
               <span className="heroUnit heroUnit--after">°C</span>
             </p>
             <p className="heroNote">{sentenceCase(now.description)}</p>

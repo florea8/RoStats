@@ -1,5 +1,5 @@
 import { describeRoad } from '../traffic'
-import CountUp from '../CountUp'
+import Odometer from '../Odometer'
 import FocusRow from '../FocusRow'
 import SectionHeader from './SectionHeader'
 
@@ -23,11 +23,11 @@ export default function TrafficSection({ traffic, focus, onFocus }) {
       <SectionHeader title="Traffic" subtitle="Five main roads · estimated" source={source} />
 
       {roads && (
-        <div className="hero hero--stacked">
+        <div className="hero hero--stacked" data-spot>
           <div className="heroText">
             <p className="label">Main roads slowed, now</p>
             <p className="heroFigure display">
-              <CountUp value={slowed} />
+              <Odometer value={slowed} />
               <span className="heroUnit heroUnit--after">of {roads.length}</span>
             </p>
           </div>

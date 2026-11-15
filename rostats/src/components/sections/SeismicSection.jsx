@@ -3,6 +3,7 @@ import { summarize24h } from '../../utils/earthquakes'
 import { timeAgo } from '../../utils/time'
 import { nearCity } from '../geo'
 import CountUp from '../CountUp'
+import Odometer from '../Odometer'
 import FocusRow from '../FocusRow'
 import Swatch from '../Swatch'
 import SectionHeader, { SectionSkeleton } from './SectionHeader'
@@ -42,12 +43,12 @@ export default function SeismicSection({ earthquakes, focus, onFocus }) {
       {quakes?.length === 0 && <p className="stateMsg">No earthquakes recorded in the last 30 days.</p>}
 
       {latest && (
-        <div className="hero">
+        <div className="hero" data-spot>
           <div className="heroText">
             <p className="label">Latest event</p>
             <p className="heroFigure display">
               <span className="heroUnit">M</span>
-              <CountUp value={latest.magnitude} decimals={1} />
+              <Odometer value={latest.magnitude} decimals={1} />
             </p>
             <p className="heroNote">
               {nearCity(latest.lat, latest.lng)}

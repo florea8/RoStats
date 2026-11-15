@@ -121,6 +121,23 @@ ul, ol { list-style: none; }
   line-height: 1;
 }
 
+/* Light that follows the pointer across a surface marked data-spot.
+   App.jsx keeps --spot-x and --spot-y up to date. */
+[data-spot] { position: relative; }
+
+[data-spot]::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(260px circle at var(--spot-x, 50%) var(--spot-y, 50%), rgba(255, 255, 255, 0.09), transparent 70%);
+  transition: opacity 0.35s;
+}
+
+[data-spot]:hover::after { opacity: 1; }
+
 /* Color key for a data value. */
 .swatch {
   display: inline-block;
