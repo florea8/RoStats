@@ -1,4 +1,4 @@
-// Data-source status shown in the top bar and the left navigation.
+// Data-source status shown in the top bar.
 // Each source is one of: 'live' | 'demo' | 'error' | 'loading'.
 
 /** Status of one source from its React Query result and the `source` the API reported. */

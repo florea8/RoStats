@@ -131,6 +131,15 @@
 
 .topSource dt { color: var(--text-3); }
 
+/* One badge for all sources, in place of the list on narrow screens. */
+.topSummary {
+  display: none;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.topSummaryLabel { color: var(--text-3); }
+
 .topUpdated {
   color: var(--text-3);
   white-space: nowrap;
@@ -190,8 +199,8 @@
   }
 
   .topMeta { margin-left: auto; }
-  .topSources { display: flex; gap: var(--s3); }
-  .topSource dt { display: none; }
+  .topSources { display: none; }
+  .topSummary { display: flex; }
   .topUpdated { display: none; }
 
   .nav {

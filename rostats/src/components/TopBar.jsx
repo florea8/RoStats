@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef } from 'react'
 import SourceBadge from './SourceBadge'
 import Swatch from './Swatch'
 import { aqiColor, magColor, tempColor } from '../utils/colors'
+import { overallStatus } from '../utils/status'
 import '../styles/TopBar.css'
 
 const SOURCES = [
@@ -118,6 +119,15 @@ export default function TopBar({ active, onSelect, status, updatedAt, busy, eart
             </div>
           ))}
         </dl>
+        {/* Narrow screens have no room for one badge per source, so they get one for all,
+            showing the worst state; the per-source states are in its tooltip. */}
+        <p
+          className="topSummary"
+          title={SOURCES.map(([id, name]) => `${name}: ${status[id]}`).join(' · ')}
+        >
+          <span className="topSummaryLabel">Sources</span>
+          <SourceBadge source={overallStatus(status)} />
+        </p>
         {updatedAt > 0 && (
           <p className="topUpdated">
             Updated <time dateTime={new Date(updatedAt).toISOString()}>{timeFormat.format(updatedAt)}</time>
