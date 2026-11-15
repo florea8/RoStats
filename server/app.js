@@ -29,6 +29,7 @@ function createApp() {
   app.get('/api/weather',             handlers.weather);
   app.get('/api/earthquakes',         handlers.earthquakes);
   app.get('/api/aqi',                 handlers.aqi);
+  app.get('/api/indicators',          handlers.indicators);
   app.get('/api/history/aqi',         handlers.aqiHistory);
   app.get('/api/history/earthquakes', handlers.earthquakeHistory);
   app.get('/api/health',              handlers.health);

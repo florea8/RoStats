@@ -2,15 +2,11 @@ import CountUp from './CountUp'
 import DotField from './DotField'
 import Footer from './Footer'
 import SectionHeader from './sections/SectionHeader'
-import { INDICATORS } from './sections/indicators'
+import { useIndicators } from '../hooks/useIndicators'
+import { describeChange, periodLabel, splitSign } from '../utils/indicators'
 import '../styles/Board.css'
 
-// "+2.1" → sign "+", number 2.1, one decimal; the sign is kept as written.
-function parseValue(value) {
-  const sign = /^[+-]/.test(value) ? value[0] : ''
-  const digits = sign ? value.slice(1) : value
-  return { sign, number: Number(digits), decimals: (digits.split('.')[1] ?? '').length }
-}
+const PLACEHOLDER_TILES = 9
 
 /** Tick for a change that is good news for the country, mark for one that is not. */
 function Verdict({ favourable }) {
@@ -26,11 +22,36 @@ function Verdict({ favourable }) {
   )
 }
 
+function Tile({ indicator, index }) {
+  const { sign, number } = splitSign(indicator)
+  const change = describeChange(indicator)
+  return (
+    <div className="tile" data-spot style={{ animationDelay: `${index * 60}ms` }}>
+      <dt className="tileHead">
+        <span className="label">{indicator.label}</span>
+        <span className="tilePeriod">{periodLabel(indicator.period)}</span>
+      </dt>
+      <dd>
+        <span className="tileValue display">
+          {sign}<CountUp value={number} decimals={indicator.decimals} />
+          <span className="tileUnit">{indicator.unit}</span>
+        </span>
+        <span className="tileChange">
+          <span>{change.text}</span>
+          {change.favourable != null && <Verdict favourable={change.favourable} />}
+        </span>
+      </dd>
+    </div>
+  )
+}
+
 /**
  * National indicators. They have no location, so instead of the map and its
  * side panel this section fills the whole width with one board.
  */
 export default function IndicatorBoard() {
+  const { data: indicators, isLoading, isError, source } = useIndicators()
+
   return (
     <main className="board" aria-labelledby="section-title">
       <DotField />
@@ -38,36 +59,32 @@ export default function IndicatorBoard() {
         <div className="boardInner">
           <SectionHeader
             title="National indicators"
-            subtitle="Economy · National Institute of Statistics"
-            source="static"
-            href="https://insse.ro"
-            linkLabel="INS"
+            subtitle="Romania · latest official figures"
+            source={isError ? 'error' : source}
+            href="https://ec.europa.eu/eurostat/web/main/data/database"
+            linkLabel="Eurostat"
           />
 
-        <dl className="tiles">
-          {INDICATORS.map((indicator, i) => {
-            const { sign, number, decimals } = parseValue(indicator.value)
-            return (
-              <div className="tile" data-spot key={indicator.id} style={{ animationDelay: `${i * 60}ms` }}>
-                <dt className="label">{indicator.label}</dt>
-                <dd>
-                  <span className="tileValue display">
-                    {sign}<CountUp value={number} decimals={decimals} />
-                    <span className="tileUnit">{indicator.unit}</span>
-                  </span>
-                  <span className="tileChange">
-                    <span>{indicator.change}</span>
-                    <Verdict favourable={indicator.favourable} />
-                  </span>
-                </dd>
-              </div>
-            )
-          })}
-        </dl>
+          {isError && <p className="stateMsg" role="alert">Eurostat could not be reached.</p>}
+
+          {isLoading && (
+            <div className="tiles" role="status" aria-label="Loading indicators">
+              {Array.from({ length: PLACEHOLDER_TILES }, (_, i) => (
+                <div className="tile" key={i}><div className="skeleton tileSkeleton" /></div>
+              ))}
+            </div>
+          )}
+
+          {indicators && (
+            <dl className="tiles">
+              {indicators.map((indicator, i) => <Tile indicator={indicator} index={i} key={indicator.id} />)}
+            </dl>
+          )}
 
           <p className="note">
-            Copied by hand from INS publications. These figures do not update on their own
-            and may be older than the latest release.
+            {source === 'demo'
+              ? 'Eurostat did not answer for every figure, so some show the last values known to this site.'
+              : 'Fetched from Eurostat. Each figure is the latest period published, so monthly, quarterly and yearly figures sit side by side.'}
           </p>
         </div>
         <Footer />

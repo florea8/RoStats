@@ -7,6 +7,7 @@ const { getWeather } = require('./lib/weather');
 const { getAQI } = require('./lib/airQuality');
 const { getEarthquakes } = require('./lib/earthquakes');
 const { getAqiHistory, getEarthquakeHistory } = require('./lib/history');
+const { getIndicators } = require('./lib/indicators');
 
 const schemas = {
   weather:     z.object({ city: z.enum(CITY_IDS).optional() }),
@@ -59,6 +60,13 @@ async function earthquakes(_req, res) {
   }
 }
 
+// Eurostat publishes monthly at most, so six hours of CDN caching loses nothing.
+async function indicators(_req, res) {
+  const { data, source } = await getIndicators();
+  cacheFor(res, source === 'live' ? 6 * 3600 : 300);
+  res.json({ ok: true, data, source });
+}
+
 async function aqiHistory(req, res) {
   const parsed = schemas.aqiHistory.safeParse(req.query);
   if (!parsed.success) return badRequest(res, parsed.error);
@@ -95,4 +103,4 @@ function getOnly(handler) {
   };
 }
 
-module.exports = { weather, aqi, earthquakes, aqiHistory, earthquakeHistory, health, getOnly };
+module.exports = { weather, aqi, earthquakes, indicators, aqiHistory, earthquakeHistory, health, getOnly };

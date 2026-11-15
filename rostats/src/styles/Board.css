@@ -67,6 +67,21 @@
   animation: rise 0.6s var(--ease) both;
 }
 
+.tileHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.tilePeriod {
+  font-size: var(--fs-small);
+  color: var(--text-3);
+  white-space: nowrap;
+}
+
+.tileSkeleton { height: 120px; }
+
 .tileValue {
   display: flex;
   align-items: baseline;

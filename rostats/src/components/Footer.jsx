@@ -4,7 +4,7 @@ import '../styles/Footer.css'
 const SOURCES = [
   ['EMSC',           'https://www.emsc-csem.org'],
   ['Open-Meteo',     'https://open-meteo.com'],
-  ['INS',            'https://insse.ro'],
+  ['Eurostat',       'https://ec.europa.eu/eurostat'],
 ]
 
 export default function Footer() {
