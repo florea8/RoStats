@@ -1,5 +1,5 @@
 import { magColor } from '../../utils/colors'
-import { REPLAY_DAYS, REPLAY_S, quakeMoment } from '../replay'
+import { REPLAY_DAYS, REPLAY_S, quakeMoment } from '../../utils/replay'
 
 const WIDTH = 1000         // drawn on a 1000 × 100 grid and stretched to fit
 const MID = 50

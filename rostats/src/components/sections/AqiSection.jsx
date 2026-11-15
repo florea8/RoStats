@@ -1,6 +1,6 @@
 import { AQI_LEVELS, aqiColor, aqiTag } from '../../utils/colors'
 import { CITIES } from '../../data/cities'
-import { sentenceCase } from '../text'
+import { sentenceCase } from '../../utils/text'
 import Odometer from '../Odometer'
 import FocusRow from '../FocusRow'
 import Swatch from '../Swatch'

@@ -1,4 +1,4 @@
-import { PALETTE } from '../utils/colors'
+import { PALETTE } from './colors'
 
 // Ordered from free to congested; drives the table, the map lines and the legend.
 export const TRAFFIC_STATES = [

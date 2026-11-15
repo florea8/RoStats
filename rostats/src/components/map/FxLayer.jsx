@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { useMap } from 'react-leaflet'
 import L from 'leaflet'
-import { reducedMotion, startCanvasLoop } from '../canvasLoop'
+import { startCanvasLoop } from '../../utils/canvasLoop'
+import { reducedMotion } from '../../utils/motion'
 import { SCENES } from './scenes'
 
 /**

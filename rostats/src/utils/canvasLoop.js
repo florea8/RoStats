@@ -1,5 +1,3 @@
-export const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
 /** Repeatable pseudo-random number in [0, 1) for an index, so particles keep their place between frames. */
 export function rand(i) {
   const x = Math.sin(i * 127.1 + 311.7) * 43758.5453

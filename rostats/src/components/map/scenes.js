@@ -9,8 +9,8 @@ import { aqiColor, magColor } from '../../utils/colors'
 import { markerRadius } from '../../utils/earthquakes'
 import { wxCode } from '../../utils/weather'
 import { CITIES } from '../../data/cities'
-import { rand } from '../canvasLoop'
-import { REPLAY_S, quakeMoment } from '../replay'
+import { rand } from '../../utils/canvasLoop'
+import { REPLAY_S, quakeMoment } from '../../utils/replay'
 
 const TAU = Math.PI * 2
 const easeOut = t => 1 - (1 - t) ** 3

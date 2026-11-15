@@ -1,7 +1,7 @@
 import { magColor } from '../../utils/colors'
 import { summarize24h } from '../../utils/earthquakes'
 import { timeAgo } from '../../utils/time'
-import { nearCity } from '../geo'
+import { nearCity } from '../../utils/geo'
 import CountUp from '../CountUp'
 import Odometer from '../Odometer'
 import FocusRow from '../FocusRow'

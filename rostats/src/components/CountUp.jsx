@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
+import { reducedMotion } from '../utils/motion'
 
 const DURATION = 900
 const easeOut = t => 1 - (1 - t) ** 4
-const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 /**
  * A number that runs up to its value when it appears and from the old value

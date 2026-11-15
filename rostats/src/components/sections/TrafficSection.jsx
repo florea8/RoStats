@@ -1,4 +1,4 @@
-import { describeRoad } from '../traffic'
+import { describeRoad } from '../../utils/traffic'
 import Odometer from '../Odometer'
 import FocusRow from '../FocusRow'
 import SectionHeader, { SectionSkeleton } from './SectionHeader'

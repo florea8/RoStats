@@ -11,11 +11,12 @@ import {
 import { markerRadius } from '../../utils/earthquakes'
 import { CITIES } from '../../data/cities'
 import { timeAgo } from '../../utils/time'
-import { nearCity } from '../geo'
-import { sentenceCase } from '../text'
-import { TRAFFIC_STATES, describeRoad } from '../traffic'
+import { nearCity } from '../../utils/geo'
+import { sentenceCase } from '../../utils/text'
+import { TRAFFIC_STATES, describeRoad } from '../../utils/traffic'
 import Swatch from '../Swatch'
-import { REPLAY_STEPS, quakeMoment } from '../replay'
+import { REPLAY_STEPS, quakeMoment } from '../../utils/replay'
+import { reducedMotion } from '../../utils/motion'
 import FxLayer from './FxLayer'
 import '../../styles/Map.css'
 
@@ -42,7 +43,6 @@ const LAYERS = {
   traffic: { title: 'Traffic', legend: TRAFFIC_STATES },
 }
 
-const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
 // The wheel zooms the map only where the page itself does not scroll.
 const fixedLayout = () => window.matchMedia('(min-width: 961px)').matches
 

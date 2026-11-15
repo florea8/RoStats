@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { reducedMotion, startCanvasLoop } from './canvasLoop'
+import { startCanvasLoop } from '../utils/canvasLoop'
+import { reducedMotion } from '../utils/motion'
 
 const GAP = 26            // distance between dots
 const REACH = 170         // how far the pointer disturbs the field
