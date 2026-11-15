@@ -18,8 +18,8 @@
 }
 
 .brandMark {
-  width: 26px;
-  height: 26px;
+  width: 30px;
+  height: 30px;
   fill: none;
   stroke: var(--text);
   stroke-width: 2;
@@ -42,7 +42,7 @@
   100% { transform: scale(1.08); opacity: 0; }
 }
 
-.brandName { font-size: var(--fs-heading); }
+.brandName { font-size: 1.5rem; }
 
 .brandSub {
   padding-left: var(--s3);
@@ -66,8 +66,8 @@
   display: flex;
   align-items: center;
   gap: var(--s2);
-  padding-inline: var(--s4);
-  font-size: var(--fs-small);
+  padding-inline: 14px;
+  font-size: var(--fs-body);
   font-weight: 500;
   color: var(--text-3);
   white-space: nowrap;
@@ -83,10 +83,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 7px;
+  padding: 2px 9px;
   border: 1px solid var(--line);
   border-radius: 99px;
-  font-size: var(--fs-label);
+  font-size: var(--fs-small);
   font-weight: 500;
   color: var(--text-2);
   transition: border-color 0.25s, color 0.25s;
@@ -163,15 +163,19 @@
 }
 
 /* ── Narrower bars ──────────────────────────────────────────────────── */
-@media (max-width: 1480px) {
+@media (max-width: 1680px) {
   .brandSub { display: none; }
 }
 
-@media (max-width: 1320px) {
+@media (max-width: 1560px) {
+  .topUpdated { display: none; }
+}
+
+@media (max-width: 1340px) {
   .topSources { display: none; }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1160px) {
   .navFigure { display: none; }
 }
 
@@ -193,7 +197,7 @@
   .nav {
     order: 3;
     flex: 0 0 calc(100% + 2 * var(--s4));
-    height: 44px;
+    height: 48px;
     margin: var(--s2) calc(-1 * var(--s4)) 0;
     padding-inline: var(--s2);
     overflow-x: auto;
