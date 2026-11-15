@@ -16,6 +16,7 @@ import { sentenceCase } from '../text'
 import { TRAFFIC_STATES, describeRoad } from '../traffic'
 import Swatch from '../Swatch'
 import { REPLAY_STEPS, quakeMoment } from '../replay'
+import FxLayer from './FxLayer'
 import '../../styles/Map.css'
 
 const ROMANIA = L.latLngBounds([43.6, 20.2], [48.3, 29.8])
@@ -137,7 +138,6 @@ function PopupRow({ label, children }) {
 function EarthquakeMarkers({ quakes, quakesAt, replayId }) {
   // Oldest first, so the most recent events are drawn on top.
   const shown = quakes.slice(0, MAX_QUAKE_MARKERS).reverse()
-  const latest = quakes[0]
 
   return (
     <>
@@ -166,16 +166,6 @@ function EarthquakeMarkers({ quakes, quakesAt, replayId }) {
           </Popup>
         </CircleMarker>
       ))}
-
-      {/* Waves keep leaving the most recent event, so it can be told from the rest at a glance. */}
-      {latest && (
-        <Marker
-          position={[latest.lat, latest.lng]}
-          icon={htmlIcon('pinIcon', `<span class="ripple" style="--c:${magColor(latest.magnitude)}"><i></i><i></i><i></i></span>`)}
-          interactive={false}
-          keyboard={false}
-        />
-      )}
     </>
   )
 }
@@ -250,13 +240,7 @@ function TrafficLines({ roads, focus }) {
         </Polyline>
         <Polyline
           positions={road.path}
-          pathOptions={{ color: road.state.color, weight: 4, opacity: 0.3 * dim }}
-          interactive={false}
-        />
-        {/* Dashes that travel along the road at a speed matching its state. */}
-        <Polyline
-          positions={road.path}
-          pathOptions={{ className: `flowRoad flow--${road.state.key}`, color: road.state.color, weight: 4, opacity: dim }}
+          pathOptions={{ color: road.state.color, weight: 4, opacity: 0.22 * dim }}
           interactive={false}
         />
       </Fragment>
@@ -282,7 +266,8 @@ function note(activeSection, quakes) {
 export default function MapView({ activeSection, quakes, quakesAt, aqiData, wxData, roads, focus, replayId }) {
   const layer = LAYERS[activeSection]
   const caption = note(activeSection, quakes)
-  const spot = focus?.points.length === 1 ? focus.points[0] : null
+  // A picked city is marked by its own tag, so the target ring is for earthquakes only.
+  const spot = activeSection === 'seismic' && focus?.points.length === 1 ? focus.points[0] : null
 
   return (
     <figure className="stage" aria-label={`Map of Romania: ${layer.title}`}>
@@ -307,6 +292,11 @@ export default function MapView({ activeSection, quakes, quakesAt, aqiData, wxDa
           <AttributionControl prefix={LEAFLET_CREDIT} />
           <ZoomControl position="topright" />
           <Camera focus={focus} />
+          <FxLayer
+            scene={activeSection}
+            replayId={replayId}
+            data={{ quakes, quakesAt, aqiData, wxData, focus, roads: roads?.map(describeRoad) }}
+          />
 
           {activeSection === 'seismic' && quakes && (
             <EarthquakeMarkers quakes={quakes} quakesAt={quakesAt} replayId={replayId} />
@@ -315,7 +305,7 @@ export default function MapView({ activeSection, quakes, quakesAt, aqiData, wxDa
           {activeSection === 'weather' && <WeatherMarkers wxData={wxData} focus={focus} />}
           {activeSection === 'traffic' && roads && <TrafficLines roads={roads} focus={focus} />}
 
-          {/* Target ring on the place picked in the panel. */}
+          {/* Target ring on the earthquake picked in the panel. */}
           {spot && (
             <Marker
               key={focus.id}

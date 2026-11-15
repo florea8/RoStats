@@ -10,6 +10,17 @@
   inset: 0;
 }
 
+/* Canvas the section's scene is animated on (map/FxLayer.jsx). It sits above
+   the markers and below the map controls. */
+.mapFx {
+  position: absolute;
+  inset: 0;
+  z-index: 450;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
 /* Darkens the edges so the country sits in the light and the surroundings recede. */
 .mapVignette {
   position: absolute;
@@ -117,31 +128,11 @@
 /* Markers built from HTML are anchored at a zero-size box on the point. */
 .pinIcon { overflow: visible; }
 
-.ripple,
 .target,
 .cityPin {
   position: absolute;
   top: 0;
   left: 0;
-}
-
-.ripple i {
-  position: absolute;
-  top: -40px;
-  left: -40px;
-  width: 80px;
-  height: 80px;
-  border: 1.5px solid var(--c);
-  border-radius: 50%;
-  opacity: 0;
-  animation: ripple 3.6s linear 1.2s infinite;
-}
-.ripple i:nth-child(2) { animation-delay: 2.4s; }
-.ripple i:nth-child(3) { animation-delay: 3.6s; }
-
-@keyframes ripple {
-  from { transform: scale(0.12); opacity: 1; }
-  to   { transform: scale(1); opacity: 0; }
 }
 
 /* Ring that closes in on the place picked in the panel. */
@@ -243,19 +234,6 @@
   background: var(--surface-3);
   border-color: var(--text);
   color: var(--text);
-}
-
-/* ── Roads ──────────────────────────────────────────────────────────── */
-.flowRoad {
-  stroke-dasharray: 3 15;
-  animation: flowRoad 0.9s linear infinite;
-}
-.flowRoad.flow--SLOW  { animation-duration: 2.2s; }
-.flowRoad.flow--HEAVY { animation-duration: 5s; stroke-dasharray: 3 9; }
-
-@keyframes flowRoad {
-  from { stroke-dashoffset: 36; }
-  to   { stroke-dashoffset: 0; }
 }
 
 /* ── Popups ─────────────────────────────────────────────────────────── */
