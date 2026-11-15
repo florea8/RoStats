@@ -17,8 +17,8 @@ export default function WeatherSection({ weather, focus, onFocus }) {
         title="Weather"
         subtitle="Current conditions · six cities"
         source={isError ? 'error' : source}
-        href="https://openweathermap.org"
-        linkLabel="OpenWeatherMap"
+        href="https://open-meteo.com/en/docs"
+        linkLabel="Open-Meteo"
       />
 
       {isLoading && <SectionSkeleton label="Loading weather" />}

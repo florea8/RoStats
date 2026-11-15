@@ -1,4 +1,4 @@
-// Short aviation-style code for an OpenWeatherMap description.
+// Short aviation-style code for a weather description (see server/lib/weather.js).
 // Order matters: "few clouds" must be checked before the generic "cloud".
 const RULES = [
   ['TSTM', ['thunder', 'storm']],

@@ -9,11 +9,12 @@ const { call, jsonResponse } = require('./helpers');
 beforeEach(() => {
   // Never touch a real database or API key from the developer's environment.
   delete process.env.DATABASE_URL;
-  delete process.env.OWM_KEY;
 });
 
 describe('GET /api/weather', () => {
-  const owmBody = { main: { temp: 4.6, feels_like: 2.2, humidity: 87 }, weather: [{ description: 'broken clouds' }], wind: { speed: 1.4 } };
+  const current = { temperature_2m: 4.6, apparent_temperature: 2.2, relative_humidity_2m: 87, weather_code: 3, wind_speed_10m: 1.4 };
+  // Open-Meteo answers several locations with an array, in the order asked.
+  const forAll = () => jsonResponse(CITY_IDS.map(() => ({ current })));
 
   it('rejects an unknown city', async () => {
     const res = await call(handlers.weather, { city: 'paris' });
@@ -21,43 +22,46 @@ describe('GET /api/weather', () => {
     assert.equal(res.body.ok, false);
   });
 
-  it('serves demo values for every city when OWM_KEY is missing', async () => {
+  it('returns live, rounded values for all cities from one request', async t => {
+    t.mock.method(globalThis, 'fetch', async () => forAll());
+
+    const res = await call(handlers.weather);
+    assert.equal(res.body.source, 'live');
+    assert.deepEqual(Object.keys(res.body.data), CITY_IDS);
+    assert.deepEqual(res.body.data.cluj, {
+      temp: 5, feels_like: 2, humidity: 87, description: 'overcast', wind: 1,
+    });
+    assert.equal(globalThis.fetch.mock.callCount(), 1);
+    assert.match(res.headers['cache-control'], /s-maxage=600\b/);
+  });
+
+  it('returns a single city object when ?city= is given', async t => {
+    // A single location comes back as an object, not an array.
+    t.mock.method(globalThis, 'fetch', async () => jsonResponse({ current }));
+
+    const res = await call(handlers.weather, { city: 'iasi' });
+    assert.equal(res.body.data.temp, 5);
+    assert.match(globalThis.fetch.mock.calls[0].arguments[0], /latitude=47\.\d+&/);
+  });
+
+  it('serves demo values for every city when Open-Meteo is unreachable', async t => {
+    t.mock.method(console, 'error', () => {});
+    t.mock.method(globalThis, 'fetch', async () => { throw new Error('network down'); });
+
     const res = await call(handlers.weather);
     assert.equal(res.body.source, 'demo');
     assert.deepEqual(Object.keys(res.body.data), CITY_IDS);
     assert.match(res.headers['cache-control'], /s-maxage=60\b/);
   });
 
-  it('returns live, rounded values for all cities', async t => {
-    process.env.OWM_KEY = 'test-key';
-    t.mock.method(globalThis, 'fetch', async () => jsonResponse(owmBody));
-
-    const res = await call(handlers.weather);
-    assert.equal(res.body.source, 'live');
-    assert.deepEqual(res.body.data.cluj, {
-      temp: 5, feels_like: 2, humidity: 87, description: 'broken clouds', wind: 1,
-    });
-    assert.match(res.headers['cache-control'], /s-maxage=600\b/);
-  });
-
-  it('returns a single city object when ?city= is given', async t => {
-    process.env.OWM_KEY = 'test-key';
-    t.mock.method(globalThis, 'fetch', async () => jsonResponse(owmBody));
-
-    const res = await call(handlers.weather, { city: 'iasi' });
-    assert.equal(res.body.data.temp, 5);
-    assert.equal(globalThis.fetch.mock.callCount(), 1);
-  });
-
-  it('marks the response as demo when one city fails', async t => {
-    process.env.OWM_KEY = 'test-key';
-    t.mock.method(globalThis, 'fetch', async url =>
-      url.includes('id=681290') ? jsonResponse({}, 500) : jsonResponse(owmBody));
+  it('marks the response as demo when one city is missing', async t => {
+    t.mock.method(globalThis, 'fetch', async () =>
+      jsonResponse(CITY_IDS.map(id => (id === 'cluj' ? {} : { current }))));
 
     const res = await call(handlers.weather);
     assert.equal(res.body.source, 'demo');
     assert.equal(res.body.data.cluj.description, 'light rain'); // demo value
-    assert.equal(res.body.data.iasi.description, 'broken clouds'); // live value
+    assert.equal(res.body.data.iasi.description, 'overcast');   // live value
   });
 });
 
